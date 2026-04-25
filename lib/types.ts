@@ -1,0 +1,44 @@
+export type Service = {
+  _id?: string;
+  id?: string;
+  title: string;
+  description: string;
+  price: number;
+  duration?: string;
+  image?: string;
+  isActive?: boolean;
+  createdAt?: string;
+};
+
+export type Product = {
+  _id?: string;
+  id?: string;
+  title: string;
+  description: string;
+  price: number;
+  image?: string;
+  zodiac?: string;
+  certification?: string;
+  isActive?: boolean;
+  createdAt?: string;
+};
+
+export type OrderStatus = "pending" | "paid" | "failed";
+
+export type Order = {
+  _id: string;
+  userInfo: {
+    name: string;
+    email: string;
+    phone: string;
+  };
+  items: Array<{
+    itemId?: string;
+    itemType: "service" | "product";
+    title?: string;
+    price?: number;
+  }>;
+  totalAmount: number;
+  status: OrderStatus;
+  createdAt?: string;
+};

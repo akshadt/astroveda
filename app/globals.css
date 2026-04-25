@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+@theme {
+  --color-orange-primary: #F97316;
+  --color-orange-hover: #EA6C0A;
+  --color-orange-light: #FFF7ED;
+  
+  --color-navy-dark: #0F172A;
+  
+  --color-neutral-text: #0F172A;
+  --color-neutral-muted: #64748B;
+  --color-neutral-bg: #FAF7F2;
+
+  --font-playfair: var(--font-playfair);
+  --font-inter: var(--font-inter);
+}
+
+body {
+  background-color: var(--color-neutral-bg);
+  color: var(--color-neutral-text);
+  font-family: var(--font-inter), sans-serif;
+}
