@@ -74,31 +74,31 @@ export default function Home() {
             <span className="inline-block bg-[#FFF7ED] text-[#F97316] font-bold text-xs px-4 py-1.5 rounded-full uppercase tracking-widest border border-[#F97316]/20">
               ✦ EXPERT VEDIC ASTROLOGY
             </span>
-            <h1 className="font-playfair text-5xl md:text-6xl font-extrabold leading-tight">
+            <h1 className="font-playfair text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight">
               <span className="text-[#0F172A]">TALK TO</span> <span className="text-[#F97316]">EXPERT ASTROLOGER NOW!</span>
             </h1>
-            <p className="text-xl text-[#0F172A] font-semibold">
+            <p className="text-lg md:text-xl text-[#0F172A] font-semibold">
               Get Your Personalized Kundli Report + Expert Consultation from Certified Vedic Astrologer
             </p>
-            <p className="text-[#64748B] text-lg leading-relaxed max-w-lg">
+            <p className="text-[#64748B] text-base md:text-lg leading-relaxed max-w-lg">
               Discover your cosmic destiny, career path, love life, and financial future through ancient Vedic wisdom. Receive a detailed PDF report + 30-minute consultation within 24 hours.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <Link href="/services">
-                <button className="px-8 py-3.5 bg-[#F97316] text-white font-bold rounded-lg hover:bg-[#EA6C0A] transition-all duration-200 text-center shadow-lg hover:shadow-xl">
+              <Link href="/services" className="w-full sm:w-auto">
+                <button className="w-full sm:w-auto px-8 py-3.5 bg-[#F97316] text-white font-bold rounded-lg hover:bg-[#EA6C0A] transition-all duration-200 text-center shadow-lg hover:shadow-xl">
                   Get My Kundli Now
                 </button>
               </Link>
-              <Link href="/services">
-                <button className="px-8 py-3.5 bg-transparent border-2 border-[#0F172A] text-[#0F172A] font-bold rounded-lg hover:bg-[#0F172A] hover:text-white transition-all duration-200 text-center">
+              <Link href="/services" className="w-full sm:w-auto">
+                <button className="w-full sm:w-auto px-8 py-3.5 bg-transparent border-2 border-[#0F172A] text-[#0F172A] font-bold rounded-lg hover:bg-[#0F172A] hover:text-white transition-all duration-200 text-center">
                   Talk to Astrologer Now
                 </button>
               </Link>
             </div>
           </div>
 
-          <div className="bg-white p-8 rounded-2xl shadow-xl border border-[#E2E8F0] relative max-w-md mx-auto w-full">
-            <span className="absolute -top-4 -right-4 bg-white border border-[#E2E8F0] text-[#0F172A] font-bold text-sm px-4 py-2 rounded-full shadow-lg z-10">
+          <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl border border-[#E2E8F0] relative max-w-md mx-auto w-full">
+            <span className="absolute -top-4 -right-2 sm:-right-4 bg-white border border-[#E2E8F0] text-[#0F172A] font-bold text-xs sm:text-sm px-3 py-1.5 sm:px-4 sm:py-2 rounded-full shadow-lg z-10">
               🏅 15+ Years of Experience
             </span>
             <div className="w-full h-64 bg-gray-100 rounded-xl mb-6 overflow-hidden">
@@ -154,16 +154,16 @@ export default function Home() {
             <h2 className="font-playfair text-4xl font-bold text-[#0F172A] mb-4">Explore Categories</h2>
             <p className="text-[#64748B] text-lg font-medium">Shop by Purpose</p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
             {[
               { label: "Healing Crystals", icon: "💎", value: "healing" },
               { label: "Gemstones", icon: "✨", value: "gemstones" },
               { label: "Rudraksha", icon: "📿", value: "rudraksha" },
               { label: "Pooja Items", icon: "🪔", value: "pooja" },
             ].map((cat) => (
-              <Link href={`/shop?category=${cat.value}`} key={cat.value} className="bg-white rounded-2xl p-8 shadow-md border border-[#E2E8F0] flex flex-col items-center justify-center hover:scale-105 transition-all duration-200">
-                <span className="text-5xl mb-4">{cat.icon}</span>
-                <span className="font-bold text-[#0F172A] text-lg text-center">{cat.label}</span>
+              <Link href={`/shop?category=${cat.value}`} key={cat.value} className="bg-white rounded-2xl p-4 sm:p-8 shadow-md border border-[#E2E8F0] flex flex-col items-center justify-center hover:scale-105 transition-all duration-200">
+                <span className="text-4xl sm:text-5xl mb-2 sm:mb-4">{cat.icon}</span>
+                <span className="font-bold text-[#0F172A] text-base sm:text-lg text-center">{cat.label}</span>
               </Link>
             ))}
           </div>
@@ -177,7 +177,7 @@ export default function Home() {
             <h2 className="font-playfair text-4xl font-bold text-[#0F172A]">Trusted by 5,000+ Clients Worldwide</h2>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-20 text-center">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-6 sm:gap-6 mb-20 text-center">
             {[
               { num: "5,000+", label: "HAPPY CLIENTS" },
               { num: "15+", label: "Years EXPERIENCE" },
@@ -186,7 +186,7 @@ export default function Home() {
             ].map((stat, i) => (
               <div key={i} className="flex flex-col items-center">
                 <span className="text-[#F97316] text-3xl mb-2">✦</span>
-                <span className="text-3xl font-extrabold text-[#0F172A] mb-1">{stat.num}</span>
+                <span className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] mb-1">{stat.num}</span>
                 <span className="text-xs text-[#64748B] font-bold tracking-wider">{stat.label}</span>
               </div>
             ))}
@@ -220,7 +220,7 @@ export default function Home() {
             <p className="text-[#64748B] text-lg font-medium">Transparent pricing. No hidden fees. 100% Satisfaction.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8 max-w-5xl mx-auto">
             {/* Basic */}
             <div className="bg-white p-8 rounded-2xl border border-[#E2E8F0] flex flex-col h-full hover:shadow-lg transition-shadow">
               <h3 className="text-2xl font-bold text-[#0F172A] mb-2">Basic</h3>
@@ -340,7 +340,7 @@ export default function Home() {
             <h2 className="font-playfair text-4xl font-bold text-[#0F172A] mb-4">Shop by Categories</h2>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12">
             {[
               { label: "Healing Crystals", icon: "💎", value: "healing" },
               { label: "Gemstones", icon: "✨", value: "gemstones" },
@@ -350,10 +350,10 @@ export default function Home() {
               <button
                 key={cat.value}
                 onClick={() => setSelectedCategory(selectedCategory === cat.value ? "all" : cat.value)}
-                className={`rounded-2xl p-6 shadow-sm border flex flex-col items-center justify-center hover:scale-105 transition-all duration-200 ${selectedCategory === cat.value ? 'bg-[#F97316] text-white border-[#F97316]' : 'bg-white border-[#E2E8F0] text-[#0F172A]'}`}
+                className={`rounded-2xl p-4 sm:p-6 shadow-sm border flex flex-col items-center justify-center hover:scale-105 transition-all duration-200 ${selectedCategory === cat.value ? 'bg-[#F97316] text-white border-[#F97316]' : 'bg-white border-[#E2E8F0] text-[#0F172A]'}`}
               >
-                <span className="text-4xl mb-3">{cat.icon}</span>
-                <span className="font-bold text-lg text-center">{cat.label}</span>
+                <span className="text-3xl sm:text-4xl mb-2 sm:mb-3">{cat.icon}</span>
+                <span className="font-bold text-base sm:text-lg text-center">{cat.label}</span>
               </button>
             ))}
           </div>

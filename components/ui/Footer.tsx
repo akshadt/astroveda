@@ -8,7 +8,7 @@ export default function Footer() {
   if (pathname.startsWith("/admin")) return null;
 
   return (
-    <footer className="bg-[#0F172A] text-white py-16 px-4 md:px-8">
+    <footer className="bg-[#0F172A] text-white py-16 pb-24 md:pb-16 px-4 md:px-8">
       <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12 md:gap-8">
         
         {/* Brand Info */}

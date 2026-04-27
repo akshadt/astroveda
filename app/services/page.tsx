@@ -61,7 +61,7 @@ function ServicesContent() {
 
       {/* Category Tabs */}
       <div className="max-w-7xl mx-auto px-4 md:px-8 mt-8">
-        <div className="flex overflow-x-auto gap-3 pb-2 mb-8 scrollbar-hide">
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-3 pb-2 mb-8">
           {[
             { label: "All Services", value: "all" },
             { label: "Astrology", value: "astrology" },
@@ -78,7 +78,7 @@ function ServicesContent() {
                   router.push(`/services?category=${cat.value}`);
                 }
               }}
-              className={`whitespace-nowrap flex-shrink-0 px-6 py-2.5 rounded-full font-bold transition-all duration-200 border-2 ${currentCategory === cat.value ? 'bg-[#F97316] text-white border-[#F97316] shadow-md' : 'bg-white text-[#0F172A] border-[#F97316] hover:bg-[#FFF7ED]'}`}
+              className={`px-4 py-2 sm:px-6 sm:py-2.5 rounded-full font-bold transition-all duration-200 border-2 text-sm sm:text-base ${currentCategory === cat.value ? 'bg-[#F97316] text-white border-[#F97316] shadow-md' : 'bg-white text-[#0F172A] border-[#E2E8F0] hover:border-[#F97316] hover:bg-[#FFF7ED]'}`}
             >
               {cat.label}
             </button>

@@ -20,7 +20,7 @@ export default function Navbar() {
 
   return (
     <>
-      <div className="bg-[#F97316] text-white text-center py-2 text-sm font-medium px-4">
+      <div className="bg-[#F97316] text-white text-center py-2 text-xs sm:text-sm font-medium px-2 sm:px-4">
         🔥 Limited Daily Consultations Available — Only 5 slots remaining this week — Book before they're gone!
       </div>
       <nav className="sticky top-0 z-40 bg-white border-b border-[#E2E8F0] shadow-sm">

@@ -66,8 +66,8 @@ export default function AboutPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div className="relative mx-auto lg:mx-0 w-full max-w-[450px]">
             {/* Orange Corner Accent */}
-            <div className="absolute -top-4 -left-4 w-24 h-24 border-t-4 border-l-4 border-[#F97316] z-0"></div>
-            <div className="absolute -bottom-4 -right-4 w-24 h-24 border-b-4 border-r-4 border-[#F97316] z-0"></div>
+            <div className="absolute -top-2 -left-2 md:-top-4 md:-left-4 w-16 h-16 md:w-24 md:h-24 border-t-4 border-l-4 border-[#F97316] z-0"></div>
+            <div className="absolute -bottom-2 -right-2 md:-bottom-4 md:-right-4 w-16 h-16 md:w-24 md:h-24 border-b-4 border-r-4 border-[#F97316] z-0"></div>
             <img 
               src="/astrologer.png" 
               alt="Mukesh Ravindra Gupta" 
@@ -83,26 +83,26 @@ export default function AboutPage() {
               He is an expert in Vedic Astrology, Numerology, Vastu Shastra, Gemstone Consultation and Spiritual Healing.
             </p>
 
-            <div className="grid grid-cols-2 gap-6 mt-8">
-              <div className="bg-white p-6 rounded-xl border border-[#E2E8F0] shadow-sm text-center hover:-translate-y-1 transition-transform">
+            <div className="grid grid-cols-2 gap-4 sm:gap-6 mt-8">
+              <div className="bg-white p-4 sm:p-6 rounded-xl border border-[#E2E8F0] shadow-sm text-center hover:-translate-y-1 transition-transform">
                 <span className="text-[#F97316] text-3xl block mb-2">⭐</span>
                 <span className="block text-2xl font-extrabold text-[#0F172A]">15+</span>
-                <span className="text-sm font-bold text-[#64748B]">Years of Experience</span>
+                <span className="text-xs sm:text-sm font-bold text-[#64748B]">Years of Experience</span>
               </div>
-              <div className="bg-white p-6 rounded-xl border border-[#E2E8F0] shadow-sm text-center hover:-translate-y-1 transition-transform">
+              <div className="bg-white p-4 sm:p-6 rounded-xl border border-[#E2E8F0] shadow-sm text-center hover:-translate-y-1 transition-transform">
                 <span className="text-[#F97316] text-3xl block mb-2">👥</span>
                 <span className="block text-2xl font-extrabold text-[#0F172A]">50K+</span>
-                <span className="text-sm font-bold text-[#64748B]">Happy Clients</span>
+                <span className="text-xs sm:text-sm font-bold text-[#64748B]">Happy Clients</span>
               </div>
-              <div className="bg-white p-6 rounded-xl border border-[#E2E8F0] shadow-sm text-center hover:-translate-y-1 transition-transform">
+              <div className="bg-white p-4 sm:p-6 rounded-xl border border-[#E2E8F0] shadow-sm text-center hover:-translate-y-1 transition-transform">
                 <span className="text-[#F97316] text-3xl block mb-2">🌍</span>
                 <span className="block text-2xl font-extrabold text-[#0F172A]">20+</span>
-                <span className="text-sm font-bold text-[#64748B]">Countries Served</span>
+                <span className="text-xs sm:text-sm font-bold text-[#64748B]">Countries Served</span>
               </div>
-              <div className="bg-white p-6 rounded-xl border border-[#E2E8F0] shadow-sm text-center hover:-translate-y-1 transition-transform">
+              <div className="bg-white p-4 sm:p-6 rounded-xl border border-[#E2E8F0] shadow-sm text-center hover:-translate-y-1 transition-transform">
                 <span className="text-[#F97316] text-3xl block mb-2">🏆</span>
                 <span className="block text-2xl font-extrabold text-[#0F172A]">100+</span>
-                <span className="text-sm font-bold text-[#64748B]">Awards & Honors</span>
+                <span className="text-xs sm:text-sm font-bold text-[#64748B]">Awards & Honors</span>
               </div>
             </div>
           </div>
@@ -121,14 +121,14 @@ export default function AboutPage() {
             </div>
           </div>
 
-          <div className="flex overflow-x-auto pb-8 snap-x snap-mandatory gap-6 md:grid md:grid-cols-4 md:overflow-visible">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               { icon: "🏆", title: "Best Astrologer Award 2020", desc: "For exceptional contribution in astrology & guidance" },
               { icon: "🥇", title: "Excellence in Astrology 2021", desc: "For accurate predictions and client satisfaction" },
               { icon: "🏅", title: "Jyotish Ratna Award 2022", desc: "For outstanding services in Vedic Astrology" },
               { icon: "🌟", title: "Global Excellence Award 2023", desc: "For spiritual guidance and social impact" },
             ].map((award, i) => (
-              <div key={i} className="min-w-[280px] snap-center bg-[#FAF7F2] p-8 rounded-xl border border-[#E2E8F0] text-center shadow-sm">
+              <div key={i} className="bg-[#FAF7F2] p-6 md:p-8 rounded-xl border border-[#E2E8F0] text-center shadow-sm">
                 <span className="text-4xl block mb-4">{award.icon}</span>
                 <h3 className="font-bold text-[#0F172A] text-lg mb-2">{award.title}</h3>
                 <p className="text-sm text-[#64748B]">{award.desc}</p>
