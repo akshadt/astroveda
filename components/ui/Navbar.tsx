@@ -28,13 +28,25 @@ export default function Navbar() {
           <div className="flex justify-between items-center h-20">
             
             {/* Logo */}
-            <Link href="/" className="flex flex-col items-start justify-center">
-              <span className="font-playfair font-bold text-2xl text-[#0F172A] leading-none tracking-wide">
-                OMKKAAR
-              </span>
-              <span className="text-[#F97316] text-[10px] font-bold tracking-widest mt-1">
-                ASTROWORLD
-              </span>
+            <Link href="/" className="flex items-center justify-center">
+              <img 
+                src="/logo.png" 
+                alt="OMKKAAR ASTROWORLD" 
+                className="h-10 sm:h-12 w-auto object-contain"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                  e.currentTarget.nextElementSibling?.classList.add('flex');
+                }}
+              />
+              <div className="hidden flex-col items-start justify-center">
+                <span className="font-playfair font-bold text-2xl text-[#0F172A] leading-none tracking-wide">
+                  OMKKAAR
+                </span>
+                <span className="text-[#F97316] text-[10px] font-bold tracking-widest mt-1">
+                  ASTROWORLD
+                </span>
+              </div>
             </Link>
 
             {/* Desktop Nav */}

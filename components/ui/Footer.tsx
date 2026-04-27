@@ -13,13 +13,25 @@ export default function Footer() {
         
         {/* Brand Info */}
         <div className="space-y-4">
-          <Link href="/" className="flex flex-col">
-            <span className="font-playfair font-bold text-2xl text-white leading-none tracking-wide">
-              OMKKAAR
-            </span>
-            <span className="text-[#F97316] text-[10px] font-bold tracking-widest mt-1">
-              ASTROWORLD
-            </span>
+          <Link href="/" className="flex items-center">
+            <img 
+              src="/logo.png" 
+              alt="OMKKAAR ASTROWORLD" 
+              className="h-12 w-auto object-contain brightness-0 invert"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                e.currentTarget.nextElementSibling?.classList.add('flex');
+              }}
+            />
+            <div className="hidden flex-col">
+              <span className="font-playfair font-bold text-2xl text-white leading-none tracking-wide">
+                OMKKAAR
+              </span>
+              <span className="text-[#F97316] text-[10px] font-bold tracking-widest mt-1">
+                ASTROWORLD
+              </span>
+            </div>
           </Link>
           <p className="text-sm text-[#64748B] max-w-sm pt-2">
             Empowering your life journey with ancient Vedic wisdom and expert guidance. Connect with top astrologers today.
@@ -42,8 +54,13 @@ export default function Footer() {
           <h4 className="text-white font-semibold mb-6 text-lg font-playfair">Contact Us</h4>
           <ul className="space-y-4 text-sm text-[#64748B]">
             <li className="flex items-start">
-              <span className="mr-3 text-xl leading-none">📍</span>
-              <span>108 Vedic Avenue, Spiritual District<br />New Delhi, India 110001</span>
+              <span className="mr-3 text-xl leading-none mt-1">📍</span>
+              <span className="block leading-relaxed">
+                22/FF, The Emperor Building,<br />
+                Above Cake Shop,<br />
+                Fatehgunj, Vadodara - 390002,<br />
+                Gujarat, India
+              </span>
             </li>
             <li className="flex items-center">
               <span className="mr-3 text-xl leading-none">✉️</span>

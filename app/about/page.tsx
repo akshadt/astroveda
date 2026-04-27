@@ -6,6 +6,18 @@ import { useState } from "react";
 export default function AboutPage() {
   const [lightboxImg, setLightboxImg] = useState<string | null>(null);
   const [showAllAwards, setShowAllAwards] = useState(false);
+  const [showAllAwards1, setShowAllAwards1] = useState(false);
+
+  const awards1Photos = [
+    "/awards1/Advance Crystal Healing Certificate.png",
+    "/awards1/Asian Awards Certificate.jpeg",
+    "/awards1/Asian Awards Trophy.jpeg",
+    "/awards1/MSU Certificate Astrology.jpg",
+    "/awards1/Prerna Award.jpg",
+    "/awards1/Tamas Global Awards Certificate.jpg",
+    "/awards1/WhatsApp Image 2025-01-26 at 3.55.32 PM.jpeg"
+  ];
+  const visibleImages1 = showAllAwards1 ? awards1Photos : awards1Photos.slice(0, 4);
 
   const awardsPhotos = [
     "/awards/(11546).JPG",
@@ -17,9 +29,7 @@ export default function AboutPage() {
     "/awards/6M1A1039.JPG",
     "/awards/6M1A1123.JPG",
     "/awards/6M1A1505.JPG",
-    "/awards/Advance Crystal Healing Certificate.png",
-    "/awards/Asian Awards Certificate.jpeg",
-    "/awards/Asian Awards Trophy.jpeg",
+
     "/awards/DSC_0253.JPG",
     "/awards/DSC_8775.JPG",
     "/awards/DSC_8776.JPG",
@@ -28,13 +38,11 @@ export default function AboutPage() {
     "/awards/IMG_8989 (1).JPG",
     "/awards/IMG_8989.JPG",
     "/awards/MEET7524.JPG",
-    "/awards/MSU Certificate Astrology.jpg",
-    "/awards/Prerna Award.jpg",
-    "/awards/Tamas Global Awards Certificate.jpg",
+
     "/awards/V_J19456.JPG",
     "/awards/V_J19458.JPG",
     "/awards/WhatsApp Image 2024-05-09 at 16.48.50_afb5b730.jpg",
-    "/awards/WhatsApp Image 2025-01-26 at 3.55.32 PM.jpeg",
+
     "/awards/WhatsApp Image 2025-03-22 at 9.58.10 PM.jpeg",
     "/awards/WhatsApp Image 2026-04-27 at 22.37.14.jpeg",
     "/awards/WhatsApp Image 2026-04-27 at 22.37.20.jpeg",
@@ -141,7 +149,7 @@ export default function AboutPage() {
       {/* Section 4 - Photo Gallery */}
       <section id="awards-section" className="py-20 px-4 max-w-7xl mx-auto">
         <div className="text-center mb-12">
-          <h2 className="font-playfair text-3xl font-bold text-[#0F172A] mb-4 tracking-wide uppercase">Awards with Astrologer</h2>
+          <h2 className="font-playfair text-3xl font-bold text-[#0F172A] mb-4 tracking-wide uppercase">Awards from Celebrities</h2>
           <div className="flex items-center justify-center gap-4 max-w-[150px] mx-auto mb-4">
             <div className="h-[1px] bg-[#F97316] flex-1"></div>
             <div className="w-1.5 h-1.5 rotate-45 bg-[#F97316]"></div>
@@ -180,6 +188,53 @@ export default function AboutPage() {
               className="px-8 py-3 bg-[#F97316] text-white rounded-full font-medium hover:bg-[#EA6C0A] transition-all duration-200"
             >
               {showAllAwards ? 'Show Less' : `See More Photos (${awardsPhotos.length - 4} more)`}
+            </button>
+          </div>
+        )}
+      </section>
+
+      {/* Section 4.5 - Awards */}
+      <section id="general-awards-section" className="py-20 px-4 max-w-7xl mx-auto border-t border-[#E2E8F0]">
+        <div className="text-center mb-12">
+          <h2 className="font-playfair text-3xl font-bold text-[#0F172A] mb-4 tracking-wide uppercase">Awards</h2>
+          <div className="flex items-center justify-center gap-4 max-w-[150px] mx-auto mb-4">
+            <div className="h-[1px] bg-[#F97316] flex-1"></div>
+            <div className="w-1.5 h-1.5 rotate-45 bg-[#F97316]"></div>
+            <div className="h-[1px] bg-[#F97316] flex-1"></div>
+          </div>
+          <p className="text-sm text-[#64748B]">Click on any image to view full size</p>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 transition-all duration-300">
+          {visibleImages1.map((src, index) => (
+            <div
+              key={index}
+              className="rounded-xl overflow-hidden cursor-pointer hover:scale-105 transition-all duration-200 shadow-md"
+              onClick={() => setLightboxImg(src)}
+            >
+              <img
+                src={src}
+                alt={`Award ${index + 1}`}
+                className="w-full h-48 object-cover"
+              />
+            </div>
+          ))}
+        </div>
+
+        {awards1Photos.length > 4 && (
+          <div className="flex justify-center mt-6">
+            <button
+              onClick={() => {
+                if (showAllAwards1) {
+                  setShowAllAwards1(false);
+                  document.getElementById('general-awards-section')?.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                  setShowAllAwards1(true);
+                }
+              }}
+              className="px-8 py-3 bg-[#F97316] text-white rounded-full font-medium hover:bg-[#EA6C0A] transition-all duration-200"
+            >
+              {showAllAwards1 ? 'Show Less' : `See More Photos (${awards1Photos.length - 4} more)`}
             </button>
           </div>
         )}

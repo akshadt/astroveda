@@ -51,10 +51,21 @@ export default function AdminLogin() {
         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#FDE68A] via-[#D97706] to-[#F59E0B]"></div>
         
         <div className="text-center mb-8">
-          <svg className="w-12 h-12 text-[#7C3AED] mx-auto mb-4" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12.1 3c-4.9 0-8.9 4-8.9 8.9s4 8.9 8.9 8.9c3.9 0 7.2-2.5 8.4-6-1.5 1-3.2 1.6-5 1.6-4.9 0-8.9-4-8.9-8.9 0-1.8.6-3.5 1.6-5-.3-.1-.7-.1-1.1-.1v.6z"/>
-          </svg>
-          <h1 className="font-playfair text-2xl font-bold text-gray-900">OMKKAAR Admin</h1>
+          <img 
+            src="/logo.png" 
+            alt="OMKKAAR Admin" 
+            className="h-16 w-auto mx-auto mb-4 object-contain"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+              e.currentTarget.nextElementSibling?.classList.remove('hidden');
+            }}
+          />
+          <div className="hidden">
+            <svg className="w-12 h-12 text-[#7C3AED] mx-auto mb-4" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12.1 3c-4.9 0-8.9 4-8.9 8.9s4 8.9 8.9 8.9c3.9 0 7.2-2.5 8.4-6-1.5 1-3.2 1.6-5 1.6-4.9 0-8.9-4-8.9-8.9 0-1.8.6-3.5 1.6-5-.3-.1-.7-.1-1.1-.1v.6z"/>
+            </svg>
+            <h1 className="font-playfair text-2xl font-bold text-gray-900">OMKKAAR Admin</h1>
+          </div>
           <p className="text-gray-500 mt-2 text-sm">Please log in to streamline the cosmos.</p>
         </div>
 
