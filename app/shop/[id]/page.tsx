@@ -79,16 +79,11 @@ export default function GemstoneDetail() {
           <div className="grid grid-cols-1 md:grid-cols-2">
             {/* Hero Image */}
             <div className="h-80 md:h-full min-h-[400px] w-full bg-gray-100 relative">
-              {gemstone.zodiac && (
-                <span className="absolute top-4 left-4 bg-gray-900/80 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1.5 rounded-full z-10 uppercase tracking-widest">
-                  {gemstone.zodiac}
-                </span>
-              )}
-              <span className="absolute top-4 right-4 bg-red-500/90 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full z-10 shadow-sm animate-pulse">
-                Limited Stock
+              <span className="absolute top-4 left-4 bg-[#F97316] text-white text-xs font-bold px-3 py-1.5 rounded-full z-10 uppercase tracking-widest shadow-sm">
+                {(gemstone as any).category || "Gemstone"}
               </span>
               <img
-                src={gemstone.image}
+                src={gemstone.image || "https://picsum.photos/seed/default/600/400"}
                 alt={gemstone.title}
                 className="absolute inset-0 w-full h-full object-cover"
               />
@@ -99,12 +94,12 @@ export default function GemstoneDetail() {
               
               <h1 className="font-playfair text-4xl font-bold text-[#0F172A] mb-4">{gemstone.title}</h1>
               
-              <div className="flex flex-col gap-2 mb-6 border-l-4 border-[#F97316] pl-4 py-1">
+              <div className="flex flex-wrap gap-4 mb-6 text-[#64748B] text-sm">
                 {gemstone.certification && (
-                  <p className="text-[#0F172A] text-sm font-semibold">Certification: <span className="text-[#64748B] font-normal">{gemstone.certification}</span></p>
+                  <p>Certification: <span className="font-semibold text-[#0F172A]">{gemstone.certification}</span></p>
                 )}
                 {gemstone.zodiac && (
-                  <p className="text-[#0F172A] text-sm font-semibold">Zodiac Alignment: <span className="text-[#64748B] font-normal">{gemstone.zodiac}</span></p>
+                  <p>Zodiac: <span className="font-semibold text-[#0F172A]">{gemstone.zodiac}</span></p>
                 )}
               </div>
 
@@ -118,10 +113,10 @@ export default function GemstoneDetail() {
               </div>
 
               <Link
-                href={`/checkout?productId=${gemstone._id}`}
-                className="w-full sm:w-auto text-center px-8 py-4 bg-[#F97316] hover:bg-[#EA6C0A] text-white font-bold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+                href={`/checkout?productId=${gemstone._id || gemstone.id}`}
+                className="w-full sm:w-auto text-center px-8 py-4 bg-[#F97316] hover:bg-[#EA6C0A] text-white text-lg font-bold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
               >
-                Add to Cart
+                Buy Now
               </Link>
 
               {/* Guarantees Section */}

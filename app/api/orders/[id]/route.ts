@@ -1,13 +1,16 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Order from "@/models/Order";
+import { withAdminAuth } from "@/lib/auth";
+import type { NextRequest } from "next/server";
 
-type Context = { params: Promise<{ id: string }> };
+type Context = { params?: Promise<Record<string, string>> };
 
-export async function GET(_req: Request, context: Context) {
+export const GET = withAdminAuth(async (_req: NextRequest, context: Context) => {
   try {
     await connectDB();
-    const { id } = await context.params;
+    const params = await context.params;
+    const id = params?.id;
     const order = await Order.findById(id);
 
     if (!order) {
@@ -22,4 +25,4 @@ export async function GET(_req: Request, context: Context) {
       { status: 500 },
     );
   }
-}
+});

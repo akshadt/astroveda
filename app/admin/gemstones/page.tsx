@@ -24,12 +24,13 @@ export default function GemstonesManagement() {
     price: 0,
     image: "",
     zodiac: "",
-    certification: ""
+    certification: "",
+    category: "gemstones"
   });
 
   const openAddModal = () => {
     setEditingId(null);
-    setFormData({ title: "", description: "", price: 0, image: "", zodiac: "", certification: "" });
+    setFormData({ title: "", description: "", price: 0, image: "", zodiac: "", certification: "", category: "gemstones" });
     setError(null);
     setSaveSuccess(false);
     setIsModalOpen(true);
@@ -43,7 +44,8 @@ export default function GemstonesManagement() {
       price: gemstone.price,
       image: gemstone.image || "",
       zodiac: gemstone.zodiac || "",
-      certification: gemstone.certification || ""
+      certification: gemstone.certification || "",
+      category: (gemstone as any).category || "gemstones"
     });
     setError(null);
     setSaveSuccess(false);
@@ -163,7 +165,7 @@ export default function GemstonesManagement() {
       setSaveSuccess(true);
       await fetchGemstones();
       setTimeout(() => {
-        setFormData({ title: "", description: "", price: 0, image: "", zodiac: "", certification: "" });
+        setFormData({ title: "", description: "", price: 0, image: "", zodiac: "", certification: "", category: "gemstones" });
         setIsModalOpen(false);
         setSaving(false);
       }, 1000);
@@ -241,7 +243,11 @@ export default function GemstonesManagement() {
           </table>
           </div>
         )}
-        {loadError && <p className="px-6 pb-4 text-sm text-red-500">{loadError}</p>}
+        {loadError && (
+          <div className="mx-6 my-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm mb-4">
+            {loadError}
+          </div>
+        )}
       </div>
 
       <Modal
@@ -254,6 +260,15 @@ export default function GemstonesManagement() {
           <div>
             <label className="block text-sm font-bold text-[#0F172A] mb-1">Title</label>
             <input type="text" required value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg focus:ring-[#F97316] focus:border-[#F97316] outline-none" />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-[#0F172A] mb-1">Category</label>
+            <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg focus:ring-[#F97316] focus:border-[#F97316] outline-none bg-white">
+              <option value="healing">Healing Crystals</option>
+              <option value="gemstones">Gemstones</option>
+              <option value="rudraksha">Rudraksha</option>
+              <option value="pooja">Pooja Items</option>
+            </select>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -281,7 +296,11 @@ export default function GemstonesManagement() {
             )}
           </div>
           <div className="pt-4 flex justify-end gap-3">
-            {error && <p className="text-red-500 text-sm">{error}</p>}
+            {error && (
+              <div className="flex-1 bg-red-50 border border-red-200 text-red-600 px-4 py-2 rounded-lg text-sm mr-auto">
+                {error}
+              </div>
+            )}
             <button type="button" onClick={() => setIsModalOpen(false)} disabled={saving} className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-[#0F172A] rounded-lg font-bold transition-colors disabled:opacity-50">Cancel</button>
             <button type="button" onClick={handleSubmit} disabled={saving} className="px-4 py-2 bg-[#F97316] hover:bg-[#EA6C0A] text-white rounded-lg font-bold transition-colors disabled:opacity-50 min-w-[120px] flex justify-center">
               {saving ? <Spinner className="w-5 h-5 text-white" /> : "Save Changes"}

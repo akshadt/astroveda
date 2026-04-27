@@ -4,11 +4,16 @@ import { useEffect, useState } from "react";
 import ServiceCard from "@/components/cards/ServiceCard";
 import Spinner from "@/components/ui/Spinner";
 import type { Service } from "@/lib/types";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense } from "react";
 
-export default function ServicesPage() {
+function ServicesContent() {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const currentCategory = searchParams.get('category') || 'all';
 
   const extractErrorMessage = async (response: Response) => {
     try {
@@ -22,7 +27,9 @@ export default function ServicesPage() {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const res = await fetch("/api/services");
+        setLoading(true);
+        const url = currentCategory !== 'all' ? `/api/services?category=${currentCategory}` : "/api/services";
+        const res = await fetch(url);
         if (!res.ok) {
           throw new Error(await extractErrorMessage(res));
         }
@@ -38,25 +45,52 @@ export default function ServicesPage() {
     };
 
     fetchServices();
-  }, []);
+  }, [currentCategory]);
 
   return (
     <div className="flex flex-col min-h-screen pb-16">
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-[#1E1B4B] to-[#4C1D95] text-white py-20 px-4">
+      <div className="bg-[#F97316] text-white py-20 px-4">
         <div className="max-w-7xl mx-auto text-center">
           <h1 className="font-playfair text-4xl md:text-5xl font-bold mb-4">Our Astrology Services</h1>
-          <p className="text-purple-100 max-w-2xl mx-auto text-lg">
+          <p className="text-white/90 max-w-2xl mx-auto text-lg">
             Ancient wisdom tailored for the modern world. Find clarity, overcome obstacles, and discover your true potential.
           </p>
         </div>
       </div>
 
+      {/* Category Tabs */}
+      <div className="max-w-7xl mx-auto px-4 md:px-8 mt-8">
+        <div className="flex overflow-x-auto gap-3 pb-2 mb-8 scrollbar-hide">
+          {[
+            { label: "All Services", value: "all" },
+            { label: "Astrology", value: "astrology" },
+            { label: "Tarot Reading", value: "tarot" },
+            { label: "Numerology Consultation", value: "numerology" },
+            { label: "Vastu Consultation", value: "vastu" },
+          ].map((cat) => (
+            <button
+              key={cat.value}
+              onClick={() => {
+                if (cat.value === 'all') {
+                  router.push('/services');
+                } else {
+                  router.push(`/services?category=${cat.value}`);
+                }
+              }}
+              className={`whitespace-nowrap flex-shrink-0 px-6 py-2.5 rounded-full font-bold transition-all duration-200 border-2 ${currentCategory === cat.value ? 'bg-[#F97316] text-white border-[#F97316] shadow-md' : 'bg-white text-[#0F172A] border-[#F97316] hover:bg-[#FFF7ED]'}`}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Services Grid */}
-      <div className="max-w-7xl mx-auto px-4 md:px-8 -mt-8 relative z-10 w-full">
+      <div className="max-w-7xl mx-auto px-4 md:px-8 mt-6 relative z-10 w-full">
         {loading ? (
           <div className="flex justify-center py-16">
-            <Spinner className="w-10 h-10 text-[#7C3AED]" />
+            <Spinner className="w-10 h-10 text-[#F97316]" />
           </div>
         ) : (
           <>
@@ -74,5 +108,13 @@ export default function ServicesPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function ServicesPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center py-16"><Spinner className="w-10 h-10 text-[#F97316]" /></div>}>
+      <ServicesContent />
+    </Suspense>
   );
 }

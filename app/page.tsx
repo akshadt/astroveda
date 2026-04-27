@@ -8,6 +8,8 @@ import type { Service } from "@/lib/types";
 export default function Home() {
   const [services, setServices] = useState<Service[]>([]);
   const [servicesLoading, setServicesLoading] = useState(true);
+  const [products, setProducts] = useState<any[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -26,7 +28,20 @@ export default function Home() {
       }
     };
 
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch("/api/products");
+        if (res.ok) {
+          const data = await res.json();
+          setProducts(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch products:", err);
+      }
+    };
+
     fetchServices();
+    fetchProducts();
   }, []);
 
   const getServiceId = (title: string) => {
@@ -69,7 +84,7 @@ export default function Home() {
               Discover your cosmic destiny, career path, love life, and financial future through ancient Vedic wisdom. Receive a detailed PDF report + 30-minute consultation within 24 hours.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <Link href={kundliService ? `/checkout?serviceId=${kundliService._id}` : "/services"}>
+              <Link href="/services">
                 <button className="px-8 py-3.5 bg-[#F97316] text-white font-bold rounded-lg hover:bg-[#EA6C0A] transition-all duration-200 text-center shadow-lg hover:shadow-xl">
                   Get My Kundli Now
                 </button>
@@ -87,10 +102,14 @@ export default function Home() {
               🏅 15+ Years of Experience
             </span>
             <div className="w-full h-64 bg-gray-100 rounded-xl mb-6 overflow-hidden">
-              <img src="/astrologer.png" alt="Expert Astrologer" className="w-full h-full object-contain" />
+              <img
+                src="/astrologer.png"
+                alt="Expert Astrologer"
+                className="w-full h-full object-cover object-[50%_15%] scale-110"
+              />
             </div>
             <div className="flex items-center gap-2 mb-1">
-              <h3 className="text-2xl font-bold text-[#0F172A] font-playfair">AstroVeda Expert</h3>
+              <h3 className="text-2xl font-bold text-[#0F172A] font-playfair">Mukesh Ravindra Gupta</h3>
               <span className="bg-[#F97316] text-white text-xs p-0.5 rounded-full">✓</span>
             </div>
             <p className="text-[#F97316] font-semibold text-sm mb-3">Certified Vedic Astrologer and Vastu Consultant</p>
@@ -125,6 +144,29 @@ export default function Home() {
               <p className="text-[#64748B] text-sm leading-relaxed">{feat.text}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Explore Categories */}
+      <section className="bg-[#FAF7F2] py-20 px-4 border-b border-[#E2E8F0]">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="font-playfair text-4xl font-bold text-[#0F172A] mb-4">Explore Categories</h2>
+            <p className="text-[#64748B] text-lg font-medium">Shop by Purpose</p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[
+              { label: "Healing Crystals", icon: "💎", value: "healing" },
+              { label: "Gemstones", icon: "✨", value: "gemstones" },
+              { label: "Rudraksha", icon: "📿", value: "rudraksha" },
+              { label: "Pooja Items", icon: "🪔", value: "pooja" },
+            ].map((cat) => (
+              <Link href={`/shop?category=${cat.value}`} key={cat.value} className="bg-white rounded-2xl p-8 shadow-md border border-[#E2E8F0] flex flex-col items-center justify-center hover:scale-105 transition-all duration-200">
+                <span className="text-5xl mb-4">{cat.icon}</span>
+                <span className="font-bold text-[#0F172A] text-lg text-center">{cat.label}</span>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -291,40 +333,67 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Gemstones Preview */}
-      <section className="bg-[#0F172A] py-24 px-4">
+      {/* Shop by Categories */}
+      <section className="bg-white py-24 px-4">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
-            <div className="max-w-2xl">
-              <h2 className="font-playfair text-4xl font-bold text-white mb-4">Amplify Your Cosmic Energy with Lab-Certified Gemstones</h2>
-              <p className="text-[#64748B] text-lg">Authentic, energized stones carefully selected to balance your planetary alignments and bring prosperity to your life.</p>
-            </div>
-            <Link href="/shop" className="shrink-0 px-6 py-3 border-2 border-white text-white font-bold rounded-lg hover:bg-white hover:text-[#0F172A] transition-colors">
-              View All Gemstones
-            </Link>
+          <div className="text-center mb-12">
+            <h2 className="font-playfair text-4xl font-bold text-[#0F172A] mb-4">Shop by Categories</h2>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+            {[
+              { label: "Healing Crystals", icon: "💎", value: "healing" },
+              { label: "Gemstones", icon: "✨", value: "gemstones" },
+              { label: "Rudraksha", icon: "📿", value: "rudraksha" },
+              { label: "Pooja Items", icon: "🪔", value: "pooja" },
+            ].map((cat) => (
+              <button
+                key={cat.value}
+                onClick={() => setSelectedCategory(selectedCategory === cat.value ? "all" : cat.value)}
+                className={`rounded-2xl p-6 shadow-sm border flex flex-col items-center justify-center hover:scale-105 transition-all duration-200 ${selectedCategory === cat.value ? 'bg-[#F97316] text-white border-[#F97316]' : 'bg-white border-[#E2E8F0] text-[#0F172A]'}`}
+              >
+                <span className="text-4xl mb-3">{cat.icon}</span>
+                <span className="font-bold text-lg text-center">{cat.label}</span>
+              </button>
+            ))}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {gemstones.map((gem) => (
-              <div key={gem.id} className="bg-[#1e293b] rounded-xl overflow-hidden group hover:-translate-y-1 transition-transform duration-300 border border-gray-800 flex flex-col h-full shadow-xl">
-                <div className="relative h-48 bg-gray-800 overflow-hidden">
-                  <span className="absolute top-3 left-3 bg-gray-900/80 backdrop-blur-sm text-white text-xs font-semibold px-2 py-1 rounded z-10 uppercase tracking-wide">
-                    {gem.zodiac}
-                  </span>
-                  <img src={gem.image} alt={gem.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 opacity-90 group-hover:opacity-100" />
+            {(products.length > 0 ? products : gemstones)
+              .filter(p => selectedCategory === "all" || p.category === selectedCategory || (!p.category && selectedCategory === 'gemstones'))
+              .slice(0, 4)
+              .map((gem) => (
+              <div key={gem._id || gem.id} className="bg-white rounded-xl overflow-hidden group hover:-translate-y-1 transition-transform duration-300 border border-[#E2E8F0] flex flex-col h-full shadow-md">
+                <div className="relative h-48 bg-gray-100 overflow-hidden">
+                  {gem.zodiac && (
+                    <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-[#0F172A] border border-[#E2E8F0] text-xs font-bold px-2 py-1 rounded z-10 uppercase tracking-wide">
+                      {gem.zodiac}
+                    </span>
+                  )}
+                  <img
+                    src={gem.image || "https://picsum.photos/seed/default/600/400"}
+                    alt={gem.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
                 </div>
                 <div className="p-5 flex flex-col flex-grow">
-                  <h4 className="font-bold text-white text-lg mb-2 leading-tight">{gem.title}</h4>
+                  <h4 className="font-bold text-[#0F172A] text-lg mb-2 leading-tight">{gem.title}</h4>
                   <p className="text-sm text-[#64748B] mb-4 flex-grow line-clamp-2">{gem.description}</p>
                   <div className="flex items-center justify-between mt-auto">
                     <span className="text-[#F97316] font-bold text-lg">₹{gem.price}</span>
-                    <Link href={`/checkout?productId=${gem.id}`} className="px-4 py-2 bg-[#F97316] hover:bg-[#EA6C0A] text-white text-sm font-bold rounded transition-colors shadow-md">
-                      Add to Cart
+                    <Link href={`/shop/${gem._id || gem.id}`} className="px-4 py-2 bg-[#F97316] hover:bg-[#EA6C0A] text-white text-sm font-bold rounded transition-colors shadow-md">
+                      View Details
                     </Link>
                   </div>
                 </div>
               </div>
             ))}
+          </div>
+          
+          <div className="mt-12 text-center">
+            <Link href="/shop" className="inline-block px-8 py-3 bg-transparent border-2 border-[#0F172A] text-[#0F172A] font-bold rounded-lg hover:bg-[#0F172A] hover:text-white transition-all duration-200">
+              View All Products
+            </Link>
           </div>
         </div>
       </section>

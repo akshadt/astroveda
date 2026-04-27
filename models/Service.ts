@@ -7,6 +7,11 @@ const serviceSchema = new Schema(
     price: { type: Number, required: true },
     duration: { type: String },
     image: { type: String },
+    category: {
+      type: String,
+      enum: ['astrology', 'tarot', 'numerology', 'vastu'],
+      default: 'astrology'
+    },
     isActive: { type: Boolean, default: true },
   },
   {

@@ -57,7 +57,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (checkingAuth) {
     return (
       <div className="min-h-screen bg-gray-50 w-full flex items-center justify-center">
-        <Spinner className="w-10 h-10 text-[#7C3AED]" />
+        <Spinner className="w-10 h-10 text-[#F97316]" />
       </div>
     );
   }

@@ -36,17 +36,23 @@ const Admin = mongoose.models.Admin || mongoose.model("Admin", adminSchema);
 async function seed() {
   await mongoose.connect(MONGODB_URI, { dbName: "astrology-app" });
 
-  const existing = await Admin.findOne({ username: "admin" });
-  if (existing) {
-    console.log("Admin already exists");
-    await mongoose.disconnect();
-    process.exit(0);
+  const username = "omkkaarastroworld";
+  const password = "o1234@9876a";
+
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  const admin = await Admin.findOneAndUpdate(
+    { username },
+    { username, passwordHash },
+    { upsert: true, new: true },
+  );
+
+  // Remove legacy default admin if present
+  if (username !== "admin") {
+    await Admin.deleteOne({ username: "admin" });
   }
 
-  const passwordHash = await bcrypt.hash("admin123", 10);
-  await Admin.create({ username: "admin", passwordHash });
-
-  console.log("Admin created: username=admin password=admin123");
+  console.log(`Admin ensured: username=${admin.username} password=${password}`);
   await mongoose.disconnect();
   process.exit(0);
 }

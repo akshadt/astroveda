@@ -15,7 +15,7 @@ export default function Footer() {
         <div className="space-y-4">
           <Link href="/" className="flex flex-col">
             <span className="font-playfair font-bold text-2xl text-white leading-none tracking-wide">
-              ASTROVEDA
+              OMKKAAR
             </span>
             <span className="text-[#F97316] text-[10px] font-bold tracking-widest mt-1">
               ASTROWORLD
@@ -33,7 +33,7 @@ export default function Footer() {
             <Link href="/" className="hover:text-white transition-colors w-fit">Home</Link>
             <Link href="/shop" className="hover:text-white transition-colors w-fit">Shop</Link>
             <Link href="/checkout" className="hover:text-white transition-colors w-fit">Book Consultation</Link>
-            <Link href="/about" className="hover:text-white transition-colors w-fit">About AstroVeda</Link>
+            <Link href="/about" className="hover:text-white transition-colors w-fit">About OMKKAAR</Link>
           </ul>
         </div>
 
@@ -66,7 +66,7 @@ export default function Footer() {
       
       {/* Bottom Bar */}
       <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-gray-800 text-center text-sm text-[#64748B]">
-        <p>&copy; {new Date().getFullYear()} AstroVeda. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} OMKKAAR ASTROWORLD. All rights reserved.</p>
       </div>
     </footer>
   );

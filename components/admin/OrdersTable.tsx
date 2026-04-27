@@ -1,11 +1,27 @@
 import Badge from "@/components/ui/Badge";
 import type { Order } from "@/lib/types";
+import { useRouter } from "next/navigation";
 
 type OrdersTableProps = {
   orders: Order[];
+  onStatusChange?: (orderId: string, newStatus: string) => void;
 };
 
-export default function OrdersTable({ orders }: OrdersTableProps) {
+export default function OrdersTable({ orders, onStatusChange }: OrdersTableProps) {
+  const router = useRouter();
+
+  const statusSelectClass = (status: Order["status"]) => {
+    const base =
+      "text-sm rounded-lg border border-[#E2E8F0] px-2 py-1 focus:outline-none focus:border-[#F97316] cursor-pointer";
+    const variants: Record<Order["status"], string> = {
+      paid: "bg-green-100 text-green-700 border-green-200",
+      completed: "bg-blue-100 text-blue-700 border-blue-200",
+      pending: "bg-yellow-100 text-yellow-700 border-yellow-200",
+      failed: "bg-red-100 text-red-700 border-red-200",
+    };
+    return `${base} ${variants[status]}`;
+  };
+
   return (
     <div className="overflow-x-auto w-full">
       <table className="w-full text-left text-sm whitespace-nowrap">
@@ -24,7 +40,11 @@ export default function OrdersTable({ orders }: OrdersTableProps) {
         <tbody className="divide-y divide-gray-100">
           {orders.length > 0 ? (
             orders.map((order) => (
-              <tr key={order._id} className="hover:bg-gray-50">
+              <tr 
+                key={order._id} 
+                className="cursor-pointer hover:bg-orange-50 transition-colors"
+                onClick={() => router.push(`/admin/orders/${order._id}`)}
+              >
                 <td className="px-6 py-4 font-medium text-[#F97316]">
                   {order._id.slice(-8).toUpperCase()}
                 </td>
@@ -36,7 +56,21 @@ export default function OrdersTable({ orders }: OrdersTableProps) {
                 </td>
                 <td className="px-6 py-4 font-medium text-gray-900 text-right">₹{order.totalAmount}</td>
                 <td className="px-6 py-4 text-center">
-                  <Badge status={order.status} />
+                  {onStatusChange ? (
+                    <select
+                      value={order.status}
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={(e) => onStatusChange(order._id, e.target.value)}
+                      className={statusSelectClass(order.status)}
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="paid">Paid</option>
+                      <option value="completed">Completed</option>
+                      <option value="failed">Failed</option>
+                    </select>
+                  ) : (
+                    <Badge status={order.status} />
+                  )}
                 </td>
                 <td className="px-6 py-4 text-gray-500">
                   {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : "-"}

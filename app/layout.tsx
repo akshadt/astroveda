@@ -17,7 +17,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "AstroVeda | Astrology Platform",
+  title: "OMKKAAR ASTROWORLD | Astrology Platform",
   description: "Connect with expert astrologers for guidance in love, career, and life.",
 };
 

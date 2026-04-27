@@ -2,19 +2,51 @@ import { NextResponse } from "next/server";
 import Razorpay from "razorpay";
 import { connectDB } from "@/lib/db";
 
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID || "",
-  key_secret: process.env.RAZORPAY_SECRET || "",
-});
-
 export async function POST(req: Request) {
   try {
     await connectDB();
 
     const { orderId, amount } = await req.json();
+    const numericAmount = Number(amount);
+
+    if (!orderId) {
+      return NextResponse.json({ error: "orderId is required" }, { status: 400 });
+    }
+    if (!numericAmount || numericAmount < 1) {
+      return NextResponse.json(
+        { error: "Invalid amount. Minimum order value is ₹1." },
+        { status: 400 },
+      );
+    }
+
+    const keyId = process.env.RAZORPAY_KEY_ID?.trim();
+    const keySecret = process.env.RAZORPAY_SECRET?.trim();
+    if (!keyId || !keySecret) {
+      return NextResponse.json(
+        { error: "Razorpay keys are not configured on the server." },
+        { status: 500 },
+      );
+    }
+    if (!keyId.startsWith("rzp_")) {
+      return NextResponse.json(
+        { error: "Invalid RAZORPAY_KEY_ID. It should start with rzp_test_ or rzp_live_." },
+        { status: 500 },
+      );
+    }
+    if (keyId === keySecret) {
+      return NextResponse.json(
+        { error: "Razorpay keys look misconfigured (key id and secret are identical)." },
+        { status: 500 },
+      );
+    }
+
+    const razorpay = new Razorpay({
+      key_id: keyId,
+      key_secret: keySecret,
+    });
 
     const razorpayOrder = await razorpay.orders.create({
-      amount: Math.round(Number(amount) * 100),
+      amount: Math.round(numericAmount * 100),
       currency: "INR",
       receipt: String(orderId),
     });
@@ -25,9 +57,16 @@ export async function POST(req: Request) {
       currency: razorpayOrder.currency,
     });
   } catch (error: unknown) {
-    console.error("[PAYMENT_CREATE_ORDER] error:", error);
+    // Razorpay errors are often objects (not Error instances)
+    console.error("[POST /api/payment/create-order] error:", error);
+    const anyErr = error as any;
+    const description =
+      anyErr?.error?.description ||
+      anyErr?.description ||
+      anyErr?.message ||
+      "Internal server error";
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Internal server error" },
+      { error: description },
       { status: 500 },
     );
   }

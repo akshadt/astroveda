@@ -18,7 +18,7 @@ export default function GemstoneCard({ product }: { product: ProductCardData }) 
           Limited Stock
         </span>
         <img
-          src={product.image}
+          src={product.image || 'https://picsum.photos/seed/default/600/400'}
           alt={product.title}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
         />

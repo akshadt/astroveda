@@ -3,10 +3,15 @@ import { connectDB } from "@/lib/db";
 import Service from "@/models/Service";
 import { withAdminAuth } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
     await connectDB();
-    const services = await Service.find({ isActive: true }).sort({ createdAt: -1 });
+    const url = new URL(req.url);
+    const category = url.searchParams.get("category");
+    const query: any = { isActive: true };
+    if (category) query.category = category;
+    
+    const services = await Service.find(query).sort({ createdAt: -1 });
     return NextResponse.json(services);
   } catch (error: unknown) {
     console.error("[SERVICES_GET] error:", error);
@@ -39,6 +44,7 @@ export const POST = withAdminAuth(async (req) => {
       price: body.price,
       duration: body.duration,
       image: imageUrl,
+      category: body.category,
     });
 
     return NextResponse.json(service, { status: 201 });

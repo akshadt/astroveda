@@ -7,9 +7,10 @@ export const GET = withAdminAuth(async () => {
   try {
     await connectDB();
 
-    const [totalOrders, pendingOrders, revenueAgg, recentOrders] = await Promise.all([
+    const [totalOrders, pendingOrders, completedOrders, revenueAgg, recentOrders] = await Promise.all([
       Order.countDocuments(),
       Order.countDocuments({ status: "pending" }),
+      Order.countDocuments({ status: "completed" }),
       Order.aggregate([
         { $match: { status: "paid" } },
         { $group: { _id: null, total: { $sum: "$totalAmount" } } },
@@ -21,6 +22,7 @@ export const GET = withAdminAuth(async () => {
       totalOrders,
       totalRevenue: revenueAgg[0]?.total || 0,
       pendingOrders,
+      completedOrders,
       recentOrders,
     });
   } catch (error: unknown) {

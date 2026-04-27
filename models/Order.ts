@@ -1,36 +1,41 @@
-import { Schema, model, models } from "mongoose";
+import mongoose, { Schema, model, models } from "mongoose";
 
-const orderSchema = new Schema(
-  {
-    userInfo: {
-      name: { type: String, required: true },
-      email: { type: String, required: true },
-      phone: { type: String, required: true },
-    },
-    items: [
-      {
-        itemId: { type: Schema.Types.ObjectId },
-        itemType: {
-          type: String,
-          enum: ["service", "product"],
-          required: true,
-        },
-        title: { type: String },
-        price: { type: Number },
-      },
-    ],
-    totalAmount: { type: Number, required: true },
-    status: {
-      type: String,
-      enum: ["pending", "paid", "failed"],
-      default: "pending",
-    },
+const OrderSchema = new mongoose.Schema({
+  userInfo: {
+    name: { type: String, required: true },
+    email: { type: String, required: true },
+    phone: { type: String, required: true },
   },
-  {
-    timestamps: { createdAt: true, updatedAt: false },
+  items: [
+    {
+      itemId: mongoose.Schema.Types.ObjectId,
+      itemType: { type: String, enum: ["service", "product"] },
+      title: String,
+      price: Number,
+    },
+  ],
+  address: {
+    fullName: String,
+    phone: String,
+    addressLine: String,
+    city: String,
+    state: String,
+    pincode: String,
   },
-);
+  totalAmount: { type: Number, required: true },
+  status: {
+    type: String,
+    enum: ["pending", "paid", "completed", "failed"],
+    default: "pending",
+  },
+  receipt: {
+    type: String,
+    unique: true,
+    sparse: true,
+  },
+  createdAt: { type: Date, default: Date.now },
+});
 
-const Order = models.Order || model("Order", orderSchema);
+const Order = models.Order || model("Order", OrderSchema);
 
 export default Order;

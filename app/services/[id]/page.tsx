@@ -79,7 +79,7 @@ export default function ServiceDetail() {
           {/* Hero Image */}
           <div className="h-64 md:h-full min-h-[400px] w-full bg-gray-100 relative">
             <img
-              src={service.image}
+              src={service.image || 'https://picsum.photos/seed/default/600/400'}
               alt={service.title}
               className="absolute inset-0 w-full h-full object-cover"
             />

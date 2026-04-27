@@ -15,6 +15,7 @@ export default function Navbar() {
     { href: "/shop", label: "Shop" },
     { href: "/services", label: "Services" },
     { href: "/about", label: "About" },
+    { href: "/blogs", label: "Blogs" },
   ];
 
   return (
@@ -27,9 +28,9 @@ export default function Navbar() {
           <div className="flex justify-between items-center h-20">
             
             {/* Logo */}
-            <Link href="/" className="flex flex-col justify-center">
+            <Link href="/" className="flex flex-col items-start justify-center">
               <span className="font-playfair font-bold text-2xl text-[#0F172A] leading-none tracking-wide">
-                ASTROVEDA
+                OMKKAAR
               </span>
               <span className="text-[#F97316] text-[10px] font-bold tracking-widest mt-1">
                 ASTROWORLD
@@ -58,7 +59,7 @@ export default function Navbar() {
                   Login
                 </Link>
                 <Link
-                  href="/checkout"
+                  href="/services"
                   className="px-6 py-2.5 rounded-full bg-[#F97316] text-white text-sm font-medium hover:bg-[#EA6C0A] transition-all duration-200 shadow-md hover:shadow-lg"
                 >
                   ✦ Get My Kundli Now
@@ -109,7 +110,7 @@ export default function Navbar() {
                   Login
                 </Link>
                 <Link
-                  href="/checkout"
+                  href="/services"
                   onClick={() => setIsOpen(false)}
                   className="w-full block text-center px-5 py-3 rounded-full bg-[#F97316] text-white font-medium hover:bg-[#EA6C0A] transition-all shadow-md"
                 >

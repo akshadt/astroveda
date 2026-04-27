@@ -23,8 +23,8 @@ function CheckoutContent() {
 
   const [item, setItem] = useState<CheckoutItem | null>(null);
 
-  const [formData, setFormData] = useState({ name: "", email: "", phone: "" });
-  const [errors, setErrors] = useState({ name: "", email: "", phone: "" });
+  const [formData, setFormData] = useState({ name: "", email: "", phone: "", addressLine: "", city: "", state: "", pincode: "" });
+  const [errors, setErrors] = useState({ name: "", email: "", phone: "", addressLine: "", city: "", state: "", pincode: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [checkoutError, setCheckoutError] = useState("");
   const [loadingItem, setLoadingItem] = useState(true);
@@ -37,6 +37,16 @@ function CheckoutContent() {
       return fallback;
     }
   };
+
+  const parseJsonSafely = async (res: Response): Promise<any | null> => {
+    try {
+      return await res.json();
+    } catch {
+      return null;
+    }
+  };
+
+  const isProbablyObjectId = (value: unknown) => typeof value === "string" && /^[a-f\d]{24}$/i.test(value);
 
   useEffect(() => {
     const fetchItem = async () => {
@@ -109,7 +119,7 @@ function CheckoutContent() {
 
   const validate = () => {
     let valid = true;
-    const newErrors = { name: "", email: "", phone: "" };
+    const newErrors = { name: "", email: "", phone: "", addressLine: "", city: "", state: "", pincode: "" };
 
     if (!formData.name.trim()) {
       newErrors.name = "Name is required.";
@@ -123,6 +133,26 @@ function CheckoutContent() {
 
     if (!/^\d{10}$/.test(formData.phone)) {
       newErrors.phone = "Phone number must be exactly 10 digits.";
+      valid = false;
+    }
+
+    if (!formData.addressLine.trim()) {
+      newErrors.addressLine = "Address Line is required.";
+      valid = false;
+    }
+
+    if (!formData.city.trim()) {
+      newErrors.city = "City is required.";
+      valid = false;
+    }
+
+    if (!formData.state.trim()) {
+      newErrors.state = "State is required.";
+      valid = false;
+    }
+
+    if (!/^\d{6}$/.test(formData.pincode)) {
+      newErrors.pincode = "Pincode must be exactly 6 digits.";
       valid = false;
     }
 
@@ -150,42 +180,69 @@ function CheckoutContent() {
       setCheckoutError("");
 
       try {
+        const totalAmount = Number(item.price);
+        const itemId = isProbablyObjectId(item._id) ? item._id : undefined;
+        const items = [
+          {
+            itemId,
+            itemType: serviceId ? "service" : "product",
+            title: item.title,
+            price: totalAmount,
+          },
+        ];
+
+        console.log("Step 1: Creating order...");
         const orderRes = await fetch("/api/orders", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({
-            userInfo: formData,
-            items: [
-              {
-                itemId: item._id,
-                itemType: serviceId ? "service" : "product",
-                title: item.title,
-                price: item.price,
-              },
-            ],
-            totalAmount: item.price,
+            userInfo: { name: formData.name, email: formData.email, phone: formData.phone },
+            items,
+            totalAmount,
+            address: {
+              fullName: formData.name,
+              phone: formData.phone,
+              addressLine: formData.addressLine,
+              city: formData.city,
+              state: formData.state,
+              pincode: formData.pincode,
+            },
           }),
         });
 
+        console.log("Order response status:", orderRes.status);
+        const orderBody = await parseJsonSafely(orderRes);
+        console.log("Order response body:", orderBody);
+
         if (!orderRes.ok) {
-          throw new Error(await extractErrorMessage(orderRes, "Order creation failed"));
+          throw new Error(orderBody?.error || "Failed to create order");
         }
-        const { orderId } = (await orderRes.json()) as { orderId: string };
+        const { orderId } = (orderBody || {}) as { orderId?: string };
+        if (!orderId) throw new Error("Order creation failed: missing orderId");
+
+        console.log("Step 2: Order created, orderId:", orderId);
+        console.log("Step 3: Creating Razorpay order...");
 
         const rpOrderRes = await fetch("/api/payment/create-order", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({
             orderId,
-            amount: item.price,
+            amount: totalAmount,
           }),
         });
 
+        console.log("Payment response status:", rpOrderRes.status);
+        const paymentBody = await parseJsonSafely(rpOrderRes);
+        console.log("Payment response body:", paymentBody);
+
         if (!rpOrderRes.ok) {
-          throw new Error(await extractErrorMessage(rpOrderRes, "Razorpay order creation failed"));
+          throw new Error(paymentBody?.error || "Failed to create payment order");
         }
 
-        const razorpayData = (await rpOrderRes.json()) as {
+        const razorpayData = (paymentBody || {}) as {
           razorpay_order_id: string;
           amount: number;
           currency: string;
@@ -196,11 +253,12 @@ function CheckoutContent() {
           throw new Error("Razorpay SDK failed to load");
         }
 
+        console.log("Step 4: Opening Razorpay modal...");
         const razorpay = new window.Razorpay({
           key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
           amount: razorpayData.amount,
           currency: razorpayData.currency,
-          name: "AstroVeda",
+          name: "OMKKAAR ASTROWORLD",
           description: item.title,
           order_id: razorpayData.razorpay_order_id,
           handler: async (response: Record<string, string>) => {
@@ -237,7 +295,7 @@ function CheckoutContent() {
 
         razorpay.open();
       } catch (err: unknown) {
-        console.error("Checkout submit failed:", err);
+        console.error("handleSubmit failed at:", err instanceof Error ? err.message : err);
         setCheckoutError("Payment failed. Please try again.");
         setIsSubmitting(false);
       }
@@ -294,6 +352,66 @@ function CheckoutContent() {
                 {errors.phone && <p className="mt-1 text-sm text-red-500">{errors.phone}</p>}
               </div>
 
+              <div className="pt-2 border-t border-[#E2E8F0] mt-2">
+                <h3 className="text-lg font-bold text-[#0F172A] mb-4 font-playfair">Shipping Address</h3>
+                
+                <div className="space-y-5">
+                  <div>
+                    <label className="block text-sm font-bold text-[#0F172A] mb-1">Address Line</label>
+                    <input
+                      type="text"
+                      className={`w-full px-4 py-2.5 rounded-lg border ${errors.addressLine ? 'border-red-500 focus:ring-red-500' : 'border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]'} focus:outline-none focus:ring-2`}
+                      placeholder="House/Flat No., Street, Area"
+                      value={formData.addressLine}
+                      onChange={(e) => setFormData({ ...formData, addressLine: e.target.value })}
+                      disabled={isSubmitting}
+                    />
+                    {errors.addressLine && <p className="mt-1 text-sm text-red-500">{errors.addressLine}</p>}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-bold text-[#0F172A] mb-1">City</label>
+                      <input
+                        type="text"
+                        className={`w-full px-4 py-2.5 rounded-lg border ${errors.city ? 'border-red-500 focus:ring-red-500' : 'border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]'} focus:outline-none focus:ring-2`}
+                        placeholder="City"
+                        value={formData.city}
+                        onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                        disabled={isSubmitting}
+                      />
+                      {errors.city && <p className="mt-1 text-sm text-red-500">{errors.city}</p>}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-bold text-[#0F172A] mb-1">State</label>
+                      <input
+                        type="text"
+                        className={`w-full px-4 py-2.5 rounded-lg border ${errors.state ? 'border-red-500 focus:ring-red-500' : 'border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]'} focus:outline-none focus:ring-2`}
+                        placeholder="State"
+                        value={formData.state}
+                        onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                        disabled={isSubmitting}
+                      />
+                      {errors.state && <p className="mt-1 text-sm text-red-500">{errors.state}</p>}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-[#0F172A] mb-1">Pincode</label>
+                    <input
+                      type="text"
+                      className={`w-full px-4 py-2.5 rounded-lg border ${errors.pincode ? 'border-red-500 focus:ring-red-500' : 'border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]'} focus:outline-none focus:ring-2`}
+                      placeholder="6-digit Pincode"
+                      value={formData.pincode}
+                      onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
+                      disabled={isSubmitting}
+                    />
+                    {errors.pincode && <p className="mt-1 text-sm text-red-500">{errors.pincode}</p>}
+                  </div>
+                </div>
+              </div>
+
               <div className="pt-4">
                 {checkoutError && <p className="mb-3 text-sm text-red-500">{checkoutError}</p>}
                 <button
@@ -313,7 +431,11 @@ function CheckoutContent() {
               <h2 className="text-xl font-bold text-[#0F172A] mb-6 font-playfair">Order Summary</h2>
               
               <div className="flex items-start mb-6">
-                <img src={item.image} alt={item.title} className="w-20 h-20 object-cover rounded-lg mr-4 border border-[#F97316]/30 shadow-sm" />
+                <img
+                  src={item.image || "https://picsum.photos/seed/default/600/400"}
+                  alt={item.title}
+                  className="w-20 h-20 object-cover rounded-lg mr-4 border border-[#F97316]/30 shadow-sm"
+                />
                 <div>
                   <h3 className="font-bold text-[#0F172A] line-clamp-2">{item.title}</h3>
                   <p className="text-[#F97316] font-extrabold mt-1 text-lg">₹{item.price}</p>

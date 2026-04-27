@@ -6,9 +6,10 @@ import Spinner from "@/components/ui/Spinner";
 import type { Order } from "@/lib/types";
 
 export default function OrdersPage() {
-  const [filter, setFilter] = useState("all");
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<"all" | Order["status"]>("all");
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const extractErrorMessage = async (response: Response) => {
@@ -25,8 +26,7 @@ export default function OrdersPage() {
       setLoading(true);
       setError(null);
       try {
-        const query = filter === "all" ? "" : `?status=${filter}`;
-        const res = await fetch(`/api/orders${query}`, { credentials: "include" });
+        const res = await fetch(`/api/orders`, { credentials: "include" });
         if (!res.ok) {
           throw new Error(await extractErrorMessage(res));
         }
@@ -41,7 +41,36 @@ export default function OrdersPage() {
     };
 
     fetchOrders();
-  }, [filter]);
+  }, []);
+
+  const handleStatusChange = async (orderId: string, newStatus: string) => {
+    try {
+      const res = await fetch(`/api/orders/${orderId}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json();
+        throw new Error(body.error || "Failed to update status");
+      }
+
+      setOrders((prev) => prev.map((o) => (o._id === orderId ? { ...o, status: newStatus as any } : o)));
+
+      setSuccessMessage(`Order status updated to ${newStatus}`);
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err: any) {
+      console.error("Status update failed:", err);
+      setError(err.message);
+      setTimeout(() => setError(null), 3000);
+    }
+  };
+
+  const tabs: Array<"all" | Order["status"]> = ["all", "paid", "pending", "completed", "failed"];
+  const filteredOrders =
+    activeTab === "all" ? orders : orders.filter((o) => o.status === activeTab);
 
   return (
     <div className="space-y-6">
@@ -52,21 +81,43 @@ export default function OrdersPage() {
         </div>
       </div>
 
+      {successMessage && (
+        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm mb-4 flex items-center gap-2">
+          ✅ {successMessage}
+        </div>
+      )}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm mb-4 flex items-center gap-2">
+          ❌ {error}
+        </div>
+      )}
+
       {/* Filter Tabs */}
-      <div className="flex space-x-1 border-b border-gray-200 overflow-x-auto">
-        {["all", "paid", "pending", "failed"].map((status) => (
-          <button
-            key={status}
-            onClick={() => setFilter(status)}
-            className={`px-4 py-2.5 text-sm font-medium capitalize whitespace-nowrap border-b-2 transition-colors ${
-              filter === status
-                ? "border-[#7C3AED] text-[#7C3AED]"
-                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-            }`}
-          >
-            {status}
-          </button>
-        ))}
+      <div className="flex flex-wrap gap-3">
+        {tabs.map((tab) => {
+          const count = tab === "all" ? orders.length : orders.filter((o) => o.status === tab).length;
+          const label = tab === "all" ? "All" : tab.charAt(0).toUpperCase() + tab.slice(1);
+          return (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
+                activeTab === tab
+                  ? "bg-[#F97316] text-white"
+                  : "bg-white text-[#0F172A] border border-[#E2E8F0] hover:border-[#F97316]"
+              }`}
+            >
+              {label}
+              <span
+                className={`text-xs rounded-full px-2 py-0.5 ${
+                  activeTab === tab ? "bg-white text-[#F97316]" : "bg-[#F97316] text-white"
+                }`}
+              >
+                {count}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Orders Table */}
@@ -77,12 +128,7 @@ export default function OrdersPage() {
           </div>
         ) : (
           <>
-            {error && (
-              <div className="mx-6 mt-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
-                {error}
-              </div>
-            )}
-            <OrdersTable orders={orders} />
+            <OrdersTable orders={filteredOrders} onStatusChange={handleStatusChange} />
           </>
         )}
       </div>

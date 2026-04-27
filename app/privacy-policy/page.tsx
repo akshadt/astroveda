@@ -1,6 +1,6 @@
 export const metadata = {
-  title: "Privacy Policy - AstroVeda",
-  description: "Privacy Policy for AstroVeda.",
+  title: "Privacy Policy - OMKKAAR ASTROWORLD",
+  description: "Privacy Policy for OMKKAAR ASTROWORLD.",
 };
 
 export default function PrivacyPolicyPage() {
@@ -14,7 +14,7 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 className="text-2xl font-bold mb-4 font-playfair">1. Information We Collect</h2>
             <p className="text-[#64748B]">
-              At AstroVeda, we collect personal information that you provide to us directly when you register for an account, book a consultation, or purchase a gemstone. This includes your name, email address, phone number, birth details (date, time, and location), and payment information.
+              At OMKKAAR ASTROWORLD, we collect personal information that you provide to us directly when you register for an account, book a consultation, or purchase a gemstone. This includes your name, email address, phone number, birth details (date, time, and location), and payment information.
             </p>
           </section>
 
@@ -47,8 +47,8 @@ export default function PrivacyPolicyPage() {
             <h2 className="text-2xl font-bold mb-4 font-playfair">5. Contact Us</h2>
             <p className="text-[#64748B]">
               If there are any questions regarding this privacy policy, you may contact us using the information below:<br/><br/>
-              <strong>Email:</strong> support@astroveda.com<br/>
-              <strong>WhatsApp:</strong> +91 95809 98842
+              <strong>Email:</strong> astroplatformmm@gmail.com<br/>
+              <strong>WhatsApp:</strong> +91 7069110573
             </p>
           </section>
         </div>

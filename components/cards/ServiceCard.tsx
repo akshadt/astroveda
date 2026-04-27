@@ -11,7 +11,7 @@ export default function ServiceCard({ service }: { service: ServiceCardData }) {
       <div className="relative w-full h-48 bg-gray-100 overflow-hidden">
         {/* Intentionally using standard img tag for mock https://picsum.photos since Next/Image requires remotePatterns config */}
         <img
-          src={service.image}
+          src={service.image || 'https://picsum.photos/seed/default/600/400'}
           alt={service.title}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
         />

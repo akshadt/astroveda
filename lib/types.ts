@@ -23,7 +23,7 @@ export type Product = {
   createdAt?: string;
 };
 
-export type OrderStatus = "pending" | "paid" | "failed";
+export type OrderStatus = "pending" | "paid" | "completed" | "failed";
 
 export type Order = {
   _id: string;

@@ -11,10 +11,12 @@ export default function AdminDashboard() {
     totalOrders: 0,
     totalRevenue: 0,
     pendingOrders: 0,
+    completedOrders: 0,
     recentOrders: [] as Order[],
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const extractErrorMessage = async (response: Response) => {
     try {
@@ -45,6 +47,34 @@ export default function AdminDashboard() {
     fetchStats();
   }, []);
 
+  const handleStatusChange = async (orderId: string, newStatus: string) => {
+    try {
+      const res = await fetch(`/api/orders/${orderId}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json();
+        throw new Error(body.error || "Failed to update status");
+      }
+
+      setStats((prev) => ({
+        ...prev,
+        recentOrders: prev.recentOrders.map((o) => (o._id === orderId ? { ...o, status: newStatus as any } : o)),
+      }));
+
+      setSuccessMessage(`Order status updated to ${newStatus}`);
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err: any) {
+      console.error("Status update failed:", err);
+      setError(err.message);
+      setTimeout(() => setError(null), 3000);
+    }
+  };
+
   return (
     <div className="space-y-8">
       <div>
@@ -52,8 +82,19 @@ export default function AdminDashboard() {
         <p className="text-gray-500 text-sm mt-1">Welcome back. Here&apos;s what&apos;s happening today.</p>
       </div>
 
+      {successMessage && (
+        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm mb-4 flex items-center gap-2">
+          ✅ {successMessage}
+        </div>
+      )}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm mb-4 flex items-center gap-2">
+          ❌ {error}
+        </div>
+      )}
+
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <StatCard
           title="Total Orders"
           value={`${stats.totalOrders}`}
@@ -75,6 +116,17 @@ export default function AdminDashboard() {
           trendDirection="down"
           icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
         />
+        <StatCard
+          title="Completed Orders"
+          value={`${stats.completedOrders}`}
+          trend="+0%"
+          trendDirection="up"
+          icon={
+            <svg className="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          }
+        />
       </div>
 
       {/* Recent Orders */}
@@ -89,12 +141,7 @@ export default function AdminDashboard() {
           </div>
         ) : (
           <>
-            {error && (
-              <div className="mx-6 mt-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
-                {error}
-              </div>
-            )}
-            <OrdersTable orders={stats.recentOrders} />
+            <OrdersTable orders={stats.recentOrders} onStatusChange={handleStatusChange} />
           </>
         )}
       </div>
