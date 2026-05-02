@@ -1,14 +1,14 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useEffect, Suspense } from "react";
+import { useRef, useState, useEffect, Suspense } from "react";
 import { services, gemstones } from "@/lib/mockData";
 import Spinner from "@/components/ui/Spinner";
 import type { Product, Service } from "@/lib/types";
 
 declare global {
   interface Window {
-    Razorpay: new (options: Record<string, unknown>) => { open: () => void };
+    Razorpay: new (options: Record<string, unknown>) => { open: () => void; on?: (event: string, cb: (resp: any) => void) => void };
   }
 }
 
@@ -29,6 +29,7 @@ function CheckoutContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [checkoutError, setCheckoutError] = useState("");
   const [loadingItem, setLoadingItem] = useState(true);
+  const orderIdRef = useRef<string | null>(null);
 
   const extractErrorMessage = async (response: Response, fallback: string) => {
     try {
@@ -185,13 +186,16 @@ function CheckoutContent() {
     const pollInterval = setInterval(async () => {
       attempts++;
       try {
-        const res = await fetch(`/api/orders/${orderId}`, {
+        const res = await fetch("/api/payment/poll", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           credentials: "include",
           cache: "no-store",
+          body: JSON.stringify({ orderId }),
         });
         if (res.ok) {
-          const order = (await res.json()) as { status?: string };
-          if (order.status === "paid") {
+          const data = (await res.json()) as { paid?: boolean };
+          if (data.paid) {
             clearInterval(pollInterval);
             window.location.href = `/payment-success?orderId=${orderId}`;
             return;
@@ -257,6 +261,7 @@ function CheckoutContent() {
         }
         const { orderId } = (orderBody || {}) as { orderId?: string };
         if (!orderId) throw new Error("Order creation failed: missing orderId");
+        orderIdRef.current = orderId;
 
         const rpOrderRes = await fetch("/api/payment/create-order", {
           method: "POST",
@@ -305,13 +310,13 @@ function CheckoutContent() {
                   razorpay_order_id: response.razorpay_order_id,
                   razorpay_payment_id: response.razorpay_payment_id,
                   razorpay_signature: response.razorpay_signature,
-                  orderId,
+                  orderId: orderIdRef.current,
                 }),
               });
 
               const verifyData = await parseJsonSafely(verifyRes);
-              if (verifyRes.ok && verifyData?.success) {
-                window.location.href = `/payment-success?orderId=${orderId}`;
+              if (verifyRes.ok && verifyData?.success && orderIdRef.current) {
+                window.location.href = `/payment-success?orderId=${orderIdRef.current}`;
                 return;
               }
 
@@ -326,14 +331,19 @@ function CheckoutContent() {
             ondismiss: async () => {
               try {
                 if (pollInterval) clearInterval(pollInterval);
-                const statusRes = await fetch(`/api/orders/${orderId}`, {
+                const currentOrderId = orderIdRef.current;
+                if (!currentOrderId) throw new Error("Missing order id");
+                const statusRes = await fetch("/api/payment/poll", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
                   credentials: "include",
                   cache: "no-store",
+                  body: JSON.stringify({ orderId: currentOrderId }),
                 });
                 if (statusRes.ok) {
-                  const orderData = (await statusRes.json()) as { status?: string };
-                  if (orderData.status === "paid") {
-                    window.location.href = `/payment-success?orderId=${orderId}`;
+                  const pollData = (await statusRes.json()) as { paid?: boolean };
+                  if (pollData.paid) {
+                    window.location.href = `/payment-success?orderId=${currentOrderId}`;
                     return;
                   }
                 }
@@ -351,6 +361,14 @@ function CheckoutContent() {
           },
           theme: { color: "#F97316" },
         });
+
+        if (typeof razorpay.on === "function") {
+          razorpay.on("payment.failed", (response: any) => {
+            console.error("[CHECKOUT] payment.failed:", response?.error || response);
+            setCheckoutError("Payment failed. Please try again.");
+            setIsSubmitting(false);
+          });
+        }
 
         razorpay.open();
         pollInterval = startPolling(orderId);

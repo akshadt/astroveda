@@ -10,6 +10,10 @@ export async function POST(req: Request) {
 
     const { orderId, amount } = await req.json();
     const numericAmount = Number(amount);
+    console.log("[CREATE-ORDER] orderId:", orderId, "amount:", amount);
+    console.log("[CREATE-ORDER] RAZORPAY_KEY_ID set:", !!process.env.RAZORPAY_KEY_ID);
+    console.log("[CREATE-ORDER] RAZORPAY_SECRET set:", !!process.env.RAZORPAY_SECRET);
+    console.log("[CREATE-ORDER] RAZORPAY_KEY_SECRET set:", !!process.env.RAZORPAY_KEY_SECRET);
 
     if (!orderId) {
       return NextResponse.json({ error: "orderId is required" }, { status: 400 });
@@ -71,6 +75,9 @@ export async function POST(req: Request) {
       currency: "INR",
       receipt: String(orderId),
     });
+
+    // Persist Razorpay order id so server-side polling can reconcile UPI payments.
+    await Order.findByIdAndUpdate(orderId, { razorpayOrderId: razorpayOrder.id });
 
     return NextResponse.json({
       razorpay_order_id: razorpayOrder.id,

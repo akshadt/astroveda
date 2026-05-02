@@ -27,9 +27,21 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  console.log("[PAYMENT_VERIFY] input keys:", Object.keys(parsed), "orderId present:", !!parsed.orderId);
+  console.log("[VERIFY] received body keys:", Object.keys(parsed));
 
   const secret = getRazorpayKeySecret();
+  console.log("[VERIFY] razorpay_order_id:", typeof parsed.razorpay_order_id === "string" ? parsed.razorpay_order_id : null);
+  console.log(
+    "[VERIFY] razorpay_payment_id:",
+    typeof parsed.razorpay_payment_id === "string" ? parsed.razorpay_payment_id : null,
+  );
+  console.log("[VERIFY] orderId:", typeof parsed.orderId === "string" ? parsed.orderId : null);
+  console.log("[VERIFY] signature received:", !!parsed.razorpay_signature);
+  console.log("[VERIFY] RAZORPAY_SECRET set:", !!process.env.RAZORPAY_SECRET);
+  console.log("[VERIFY] RAZORPAY_SECRET length:", process.env.RAZORPAY_SECRET?.trim().length || 0);
+  console.log("[VERIFY] RAZORPAY_KEY_SECRET set:", !!process.env.RAZORPAY_KEY_SECRET);
+  console.log("[VERIFY] RAZORPAY_KEY_SECRET length:", process.env.RAZORPAY_KEY_SECRET?.trim().length || 0);
+
   if (!secret) {
     console.error("[PAYMENT_VERIFY] Missing RAZORPAY_SECRET or RAZORPAY_KEY_SECRET");
     return NextResponse.json({ error: "Payment verification is not configured." }, { status: 500 });
@@ -54,6 +66,16 @@ export async function POST(req: Request) {
     typeof parsed.razorpay_signature === "string" ? parsed.razorpay_signature.trim() : "";
 
   try {
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !orderId) {
+      console.error("[VERIFY] Missing required fields:", {
+        razorpay_order_id: !!razorpay_order_id,
+        razorpay_payment_id: !!razorpay_payment_id,
+        razorpay_signature: !!razorpay_signature,
+        orderId: !!orderId,
+      });
+      return NextResponse.json({ error: "Missing required payment fields" }, { status: 400 });
+    }
+
     if (!orderId || !mongoose.Types.ObjectId.isValid(orderId)) {
       return NextResponse.json({ error: "Invalid order id" }, { status: 400 });
     }
@@ -89,22 +111,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: message }, { status: 400 });
     };
 
-    if (!razorpay_payment_id) {
-      return markFailed("Payment verification failed: missing payment id");
-    }
-    if (!razorpay_order_id) {
-      return markFailed("Payment verification failed: missing Razorpay order id");
-    }
-    if (!razorpay_signature) {
-      return markFailed("Payment verification failed: missing signature");
-    }
-
     const payload = `${razorpay_order_id}|${razorpay_payment_id}`;
     const generatedSignature = crypto.createHmac("sha256", secret).update(payload).digest("hex");
 
-    console.log("[PAYMENT_VERIFY] HMAC payload (order_id|payment_id):", payload);
-    console.log("[PAYMENT_VERIFY] generated signature:", generatedSignature);
-    console.log("[PAYMENT_VERIFY] received signature:", razorpay_signature);
+    console.log("[VERIFY] HMAC input string:", payload);
+    console.log("[VERIFY] signatures match:", generatedSignature.toLowerCase() === razorpay_signature.toLowerCase());
 
     if (!timingSafeEqualHexDigest(generatedSignature, razorpay_signature)) {
       console.warn("[PAYMENT_VERIFY] signature mismatch");
