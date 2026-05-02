@@ -30,6 +30,10 @@ const blogSchema = new Schema(
       type: String,
       default: "Astrology",
     },
+    published: {
+      type: Boolean,
+      default: true,
+    },
   },
   { timestamps: true }
 );

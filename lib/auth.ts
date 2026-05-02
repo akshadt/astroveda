@@ -2,24 +2,24 @@ import jwt from "jsonwebtoken";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const jwtSecret = process.env.JWT_SECRET;
-
-if (!jwtSecret) {
-  throw new Error("Please define the JWT_SECRET environment variable.");
+function getJwtSecret(): string {
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret || !jwtSecret.trim()) {
+    throw new Error("Please define the JWT_SECRET environment variable.");
+  }
+  return jwtSecret.trim();
 }
-
-const JWT_SECRET: string = jwtSecret;
 
 type JwtPayload = {
   username: string;
 };
 
 export function signToken(payload: JwtPayload) {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: "24h" });
+  return jwt.sign(payload, getJwtSecret(), { expiresIn: "24h" });
 }
 
 export function verifyToken(token: string) {
-  return jwt.verify(token, JWT_SECRET) as JwtPayload;
+  return jwt.verify(token, getJwtSecret()) as JwtPayload;
 }
 
 type RouteContext = {

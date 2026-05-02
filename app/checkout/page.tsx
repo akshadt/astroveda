@@ -20,6 +20,7 @@ function CheckoutContent() {
   
   const serviceId = searchParams.get("serviceId");
   const productId = searchParams.get("productId");
+  const selectedProductOption = searchParams.get("option");
 
   const [item, setItem] = useState<CheckoutItem | null>(null);
 
@@ -160,8 +161,12 @@ function CheckoutContent() {
     return valid;
   };
 
-  const loadRazorpayScript = () =>
-    new Promise<boolean>((resolve) => {
+  const loadRazorpayScript = (): Promise<boolean> =>
+    new Promise((resolve) => {
+      if (typeof window !== "undefined" && window.Razorpay) {
+        resolve(true);
+        return;
+      }
       if (document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]')) {
         resolve(true);
         return;
@@ -182,16 +187,19 @@ function CheckoutContent() {
       try {
         const totalAmount = Number(item.price);
         const itemId = isProbablyObjectId(item._id) ? item._id : undefined;
+        const displayTitle =
+          productId && selectedProductOption?.trim()
+            ? `${item.title} (${selectedProductOption.trim()})`
+            : item.title;
         const items = [
           {
             itemId,
             itemType: serviceId ? "service" : "product",
-            title: item.title,
+            title: displayTitle,
             price: totalAmount,
           },
         ];
 
-        console.log("Step 1: Creating order...");
         const orderRes = await fetch("/api/orders", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -211,18 +219,13 @@ function CheckoutContent() {
           }),
         });
 
-        console.log("Order response status:", orderRes.status);
         const orderBody = await parseJsonSafely(orderRes);
-        console.log("Order response body:", orderBody);
 
         if (!orderRes.ok) {
           throw new Error(orderBody?.error || "Failed to create order");
         }
         const { orderId } = (orderBody || {}) as { orderId?: string };
         if (!orderId) throw new Error("Order creation failed: missing orderId");
-
-        console.log("Step 2: Order created, orderId:", orderId);
-        console.log("Step 3: Creating Razorpay order...");
 
         const rpOrderRes = await fetch("/api/payment/create-order", {
           method: "POST",
@@ -234,9 +237,7 @@ function CheckoutContent() {
           }),
         });
 
-        console.log("Payment response status:", rpOrderRes.status);
         const paymentBody = await parseJsonSafely(rpOrderRes);
-        console.log("Payment response body:", paymentBody);
 
         if (!rpOrderRes.ok) {
           throw new Error(paymentBody?.error || "Failed to create payment order");
@@ -253,7 +254,6 @@ function CheckoutContent() {
           throw new Error("Razorpay SDK failed to load");
         }
 
-        console.log("Step 4: Opening Razorpay modal...");
         const razorpay = new window.Razorpay({
           key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
           amount: razorpayData.amount,
@@ -304,8 +304,8 @@ function CheckoutContent() {
 
   return (
     <div className="bg-[#FAF7F2] min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 md:px-8 py-12 md:py-20">
-        <h1 className="font-playfair text-3xl font-bold text-[#0F172A] mb-8 border-b border-[#E2E8F0] pb-4">Checkout</h1>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 md:py-20 min-w-0">
+        <h1 className="font-playfair text-2xl sm:text-3xl font-bold text-[#0F172A] mb-8 border-b border-[#E2E8F0] pb-4">Checkout</h1>
         
         <div className="flex flex-col-reverse md:flex-row gap-8 lg:gap-12">
           {/* Form Section */}
@@ -426,15 +426,15 @@ function CheckoutContent() {
           </div>
 
           {/* Order Summary */}
-          <div className="md:w-96">
-            <div className="bg-[#FFF7ED] p-6 md:p-8 rounded-2xl border border-[#F97316]/20 sticky top-24">
+          <div className="w-full md:w-96 md:max-w-md min-w-0 shrink-0">
+            <div className="bg-[#FFF7ED] p-6 md:p-8 rounded-2xl border border-[#F97316]/20 md:sticky md:top-24">
               <h2 className="text-xl font-bold text-[#0F172A] mb-6 font-playfair">Order Summary</h2>
               
               <div className="flex items-start mb-6">
                 <img
                   src={item.image || "https://picsum.photos/seed/default/600/400"}
                   alt={item.title}
-                  className="w-20 h-20 object-cover rounded-lg mr-4 border border-[#F97316]/30 shadow-sm"
+                  className="w-20 h-20 shrink-0 object-cover rounded-lg mr-4 border border-[#F97316]/30 shadow-sm max-w-full"
                 />
                 <div>
                   <h3 className="font-bold text-[#0F172A] line-clamp-2">{item.title}</h3>

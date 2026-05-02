@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Product from "@/models/Product";
 import { withAdminAuth } from "@/lib/auth";
+import { normalizeProductCategory } from "@/lib/productCategory";
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -9,7 +10,7 @@ export async function GET(_req: Request, context: Context) {
   try {
     await connectDB();
     const { id } = await context.params;
-    const product = await Product.findOne({ _id: id, isActive: true });
+    const product = await Product.findOne({ _id: id, isActive: true }).lean();
 
     if (!product) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
@@ -39,17 +40,50 @@ export const PUT = withAdminAuth(async (req, context) => {
       certification: body.certification,
     };
 
+    if (typeof body.category === "string") {
+      updateData.category = normalizeProductCategory(body.category.toLowerCase().trim());
+    }
+
     if (body.image) {
       let imageUrl = body.image;
       if (imageUrl.startsWith("data:image")) {
         try {
           const { uploadImage } = await import("@/lib/cloudinary");
-          imageUrl = await uploadImage(imageUrl);
+          imageUrl = await uploadImage(imageUrl, "astroveda/products");
         } catch (err: unknown) {
           return NextResponse.json({ error: 'Image upload failed: ' + (err instanceof Error ? err.message : 'Unknown error') }, { status: 500 });
         }
       }
       updateData.image = imageUrl;
+    }
+
+    if (body.images !== undefined) {
+      const imageUrls: string[] = [];
+      if (Array.isArray(body.images)) {
+        for (const imgBase64 of body.images) {
+          if (typeof imgBase64 !== "string") continue;
+          if (imgBase64.startsWith("data:image")) {
+            try {
+              const { uploadImage } = await import("@/lib/cloudinary");
+              imageUrls.push(await uploadImage(imgBase64, "astroveda/products"));
+            } catch (err: unknown) {
+              return NextResponse.json(
+                { error: "Additional image upload failed: " + (err instanceof Error ? err.message : "Unknown error") },
+                { status: 500 },
+              );
+            }
+          } else if (imgBase64.startsWith("http")) {
+            imageUrls.push(imgBase64);
+          }
+        }
+      }
+      updateData.images = imageUrls;
+    }
+
+    if (body.options !== undefined) {
+      updateData.options = Array.isArray(body.options)
+        ? body.options.filter((x: unknown) => typeof x === "string").map((s: string) => s.trim()).filter(Boolean)
+        : [];
     }
 
     const product = await Product.findByIdAndUpdate(

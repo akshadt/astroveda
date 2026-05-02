@@ -17,6 +17,9 @@ export type Product = {
   description: string;
   price: number;
   image?: string;
+  images?: string[];
+  options?: string[];
+  category?: string;
   zodiac?: string;
   certification?: string;
   isActive?: boolean;

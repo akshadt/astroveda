@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export default function AdminSidebar() {
+type AdminSidebarProps = { onNavigate?: () => void };
+
+export default function AdminSidebar({ onNavigate }: AdminSidebarProps) {
   const pathname = usePathname();
 
   const links = [
@@ -16,8 +18,8 @@ export default function AdminSidebar() {
     { href: "/admin/services", label: "Services", exact: false, icon: (
       <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
     ) },
-    { href: "/admin/gemstones", label: "Gemstones", exact: false, icon: (
-      <span className="text-xl leading-none w-5 h-5 flex items-center justify-center flex-shrink-0">💎</span>
+    { href: "/admin/products", label: "Products", exact: false, icon: (
+      <span className="text-xl leading-none w-5 h-5 flex items-center justify-center flex-shrink-0">🛍️</span>
     ) },
     { href: "/admin/blogs", label: "Blogs", exact: false, icon: (
       <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" /></svg>
@@ -25,7 +27,7 @@ export default function AdminSidebar() {
   ];
 
   return (
-    <div className="bg-[#0F172A] w-16 md:w-64 min-h-screen flex flex-col text-white transition-all duration-300 shadow-xl z-20 sticky top-0 h-screen border-r border-[#1e293b]">
+    <div className="bg-[#0F172A] w-full md:w-64 min-h-screen flex flex-col text-white transition-all duration-300 shadow-xl h-full border-r border-[#1e293b]">
       
       {/* Brand Logo */}
       <div className="h-16 flex items-center justify-center md:justify-start md:px-6 border-b border-[#1e293b]">
@@ -48,7 +50,8 @@ export default function AdminSidebar() {
             <Link
               key={link.href}
               href={link.href}
-              className={`flex items-center justify-center md:justify-start p-3 md:px-4 md:py-3 rounded-xl transition-all duration-200 group ${
+              onClick={() => onNavigate?.()}
+              className={`relative flex items-center justify-center md:justify-start p-3 md:px-4 md:py-3 rounded-xl transition-all duration-200 group ${
                 isActive 
                   ? "bg-[#F97316] text-white shadow-md shadow-orange-900/20" 
                   : "text-[#64748B] hover:bg-[#1e293b] hover:text-white"
@@ -74,6 +77,7 @@ export default function AdminSidebar() {
       <div className="p-3 md:p-4 border-t border-[#1e293b]">
         <Link
           href="/admin/login"
+          onClick={() => onNavigate?.()}
           className="flex items-center justify-center md:justify-start p-3 md:px-4 md:py-3 rounded-xl transition-all hover:bg-red-500/10 text-[#64748B] hover:text-red-400 group"
           title="Logout"
         >

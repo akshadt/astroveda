@@ -11,7 +11,7 @@ export default function WhatsAppButton() {
   if (pathname.startsWith("/admin")) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex items-center">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex items-center max-w-[calc(100vw-1rem)]">
       {isHovered && (
         <div className="mr-3 bg-white px-3 py-1.5 rounded-lg shadow border text-sm font-medium text-gray-700 animate-fade-in pointer-events-none">
           Chat with us

@@ -15,8 +15,15 @@
   --font-inter: var(--font-inter);
 }
 
+html {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
 body {
   background-color: var(--color-neutral-bg);
   color: var(--color-neutral-text);
   font-family: var(--font-inter), sans-serif;
+  overflow-x: hidden;
+  max-width: 100vw;
 }

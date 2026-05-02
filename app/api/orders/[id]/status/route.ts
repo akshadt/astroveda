@@ -26,7 +26,7 @@ export const PATCH = withAdminAuth(async (req: NextRequest, context: Context) =>
 
     return NextResponse.json({ success: true, order });
   } catch (error: unknown) {
-    console.error("[PATCH /api/orders/[id]/status] error:", error);
+    console.error("[PATCH /api/orders/[id]/status]", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Internal server error" },
       { status: 500 },

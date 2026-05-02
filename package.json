@@ -9,7 +9,11 @@
     "start": "next start",
     "lint": "eslint",
     "seed": "node scripts/seed-admin.js",
-    "seed-services": "node scripts/seed-services.js"
+    "seed-services": "node scripts/seed-services.js",
+    "seed-vastu": "node scripts/seed-vastu.js",
+    "migrate:categories": "node scripts/migrate-category-lowercase.js",
+    "migrate:uncategorized-products": "node scripts/migrate-uncategorized-products-to-gemstones.js",
+    "migrate:product-categories-enum": "node scripts/migrate-product-categories-enum.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

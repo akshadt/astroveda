@@ -1,12 +1,95 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+
+const ITEMS_PER_SLIDE = 4;
+
+function AwardsPhotoCarousel({
+  images,
+  onImageClick,
+}: {
+  images: string[];
+  onImageClick: (src: string) => void;
+}) {
+  const slides = useMemo(() => {
+    const chunks: string[][] = [];
+    for (let i = 0; i < images.length; i += ITEMS_PER_SLIDE) {
+      chunks.push(images.slice(i, i + ITEMS_PER_SLIDE));
+    }
+    return chunks.length > 0 ? chunks : [[]];
+  }, [images]);
+
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  useEffect(() => {
+    if (slides.length <= 1) return;
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [slides.length]);
+
+  return (
+    <div className="relative">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {slides[currentSlide]?.map((src, i) => (
+          <button
+            key={`${currentSlide}-${i}-${src}`}
+            type="button"
+            onClick={() => onImageClick(src)}
+            className="rounded-xl overflow-hidden cursor-pointer hover:scale-105 transition-all duration-200 shadow-md border-0 p-0 bg-transparent block w-full text-left"
+          >
+            <img
+              src={src}
+              alt=""
+              className="w-full h-48 object-cover"
+              onError={(e) => {
+                e.currentTarget.classList.add("hidden");
+                console.error("[About] Award image failed to load:", src);
+              }}
+            />
+          </button>
+        ))}
+      </div>
+
+      {slides.length > 1 && (
+        <>
+          <button
+            type="button"
+            onClick={() => setCurrentSlide((p) => (p === 0 ? slides.length - 1 : p - 1))}
+            className="absolute -left-4 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-lg text-[#F97316] hidden sm:block"
+            aria-label="Previous slide"
+          >
+            ←
+          </button>
+          <button
+            type="button"
+            onClick={() => setCurrentSlide((p) => (p + 1) % slides.length)}
+            className="absolute -right-4 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-lg text-[#F97316] hidden sm:block"
+            aria-label="Next slide"
+          >
+            →
+          </button>
+          <div className="flex justify-center gap-2 mt-4">
+            {slides.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setCurrentSlide(i)}
+                className={`h-2 rounded-full transition-all ${i === currentSlide ? "bg-[#F97316] w-4" : "bg-gray-300 w-2"}`}
+                aria-label={`Slide ${i + 1}`}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 export default function AboutPage() {
   const [lightboxImg, setLightboxImg] = useState<string | null>(null);
-  const [showAllAwards, setShowAllAwards] = useState(false);
-  const [showAllAwards1, setShowAllAwards1] = useState(false);
 
   const awards1Photos = [
     "/awards1/Advance Crystal Healing Certificate.png",
@@ -15,9 +98,8 @@ export default function AboutPage() {
     "/awards1/MSU Certificate Astrology.jpg",
     "/awards1/Prerna Award.jpg",
     "/awards1/Tamas Global Awards Certificate.jpg",
-    "/awards1/WhatsApp Image 2025-01-26 at 3.55.32 PM.jpeg"
+    "/awards1/WhatsApp Image 2025-01-26 at 3.55.32 PM.jpeg",
   ];
-  const visibleImages1 = showAllAwards1 ? awards1Photos : awards1Photos.slice(0, 4);
 
   const awardsPhotos = [
     "/awards/(11546).JPG",
@@ -29,7 +111,6 @@ export default function AboutPage() {
     "/awards/6M1A1039.JPG",
     "/awards/6M1A1123.JPG",
     "/awards/6M1A1505.JPG",
-
     "/awards/DSC_0253.JPG",
     "/awards/DSC_8775.JPG",
     "/awards/DSC_8776.JPG",
@@ -38,11 +119,9 @@ export default function AboutPage() {
     "/awards/IMG_8989 (1).JPG",
     "/awards/IMG_8989.JPG",
     "/awards/MEET7524.JPG",
-
     "/awards/V_J19456.JPG",
     "/awards/V_J19458.JPG",
     "/awards/WhatsApp Image 2024-05-09 at 16.48.50_afb5b730.jpg",
-
     "/awards/WhatsApp Image 2025-03-22 at 9.58.10 PM.jpeg",
     "/awards/WhatsApp Image 2026-04-27 at 22.37.14.jpeg",
     "/awards/WhatsApp Image 2026-04-27 at 22.37.20.jpeg",
@@ -52,37 +131,30 @@ export default function AboutPage() {
     "/awards/_J0A6182.JPG",
   ];
 
-  const visibleImages = showAllAwards ? awardsPhotos : awardsPhotos.slice(0, 4);
-
   return (
     <div className="bg-[#FAF7F2] min-h-screen">
-      {/* Section 1 - Header */}
       <section className="bg-white py-16 px-4 text-center border-b border-[#E2E8F0]">
         <div className="max-w-3xl mx-auto">
           <span className="text-[#F97316] text-sm font-bold tracking-widest uppercase mb-4 inline-block">About Us</span>
-          <h1 className="font-playfair text-4xl md:text-5xl font-extrabold text-[#0F172A] mb-6">Astrologer Mukesh Ravindra Gupta</h1>
+          <h1 className="font-playfair text-4xl md:text-5xl font-extrabold text-[#0F172A] mb-6">
+            Astrologer Mukesh Ravindra Gupta
+          </h1>
           <div className="flex items-center justify-center gap-4 max-w-[200px] mx-auto">
-            <div className="h-[1px] bg-[#E2E8F0] flex-1"></div>
-            <div className="w-2 h-2 bg-[#F97316] rotate-45"></div>
-            <div className="h-[1px] bg-[#E2E8F0] flex-1"></div>
+            <div className="h-px bg-[#E2E8F0] flex-1" />
+            <div className="w-2 h-2 bg-[#F97316] rotate-45" />
+            <div className="h-px bg-[#E2E8F0] flex-1" />
           </div>
         </div>
       </section>
 
-      {/* Section 2 - Bio */}
       <section className="py-20 px-4 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div className="relative mx-auto lg:mx-0 w-full max-w-[450px]">
-            {/* Orange Corner Accent */}
-            <div className="absolute -top-2 -left-2 md:-top-4 md:-left-4 w-16 h-16 md:w-24 md:h-24 border-t-4 border-l-4 border-[#F97316] z-0"></div>
-            <div className="absolute -bottom-2 -right-2 md:-bottom-4 md:-right-4 w-16 h-16 md:w-24 md:h-24 border-b-4 border-r-4 border-[#F97316] z-0"></div>
-            <img 
-              src="/astrologer.png" 
-              alt="Mukesh Ravindra Gupta" 
-              className="w-full relative z-10 shadow-xl object-cover"
-            />
+            <div className="absolute -top-2 -left-2 md:-top-4 md:-left-4 w-16 h-16 md:w-24 md:h-24 border-t-4 border-l-4 border-[#F97316] z-0" />
+            <div className="absolute -bottom-2 -right-2 md:-bottom-4 md:-right-4 w-16 h-16 md:w-24 md:h-24 border-b-4 border-r-4 border-[#F97316] z-0" />
+            <img src="/astrologer.png" alt="Mukesh Ravindra Gupta" className="w-full relative z-10 shadow-xl object-cover" />
           </div>
-          
+
           <div className="space-y-6">
             <p className="text-[#64748B] text-lg leading-relaxed">
               With over 15 years of experience in Vedic Astrology, Mukesh Ravindra Gupta has guided thousands of people towards a better, happier and enlightened life. His accurate predictions and practical remedies have brought positive transformation in many lives across the globe.
@@ -92,40 +164,34 @@ export default function AboutPage() {
             </p>
 
             <div className="grid grid-cols-2 gap-4 sm:gap-6 mt-8">
-              <div className="bg-white p-4 sm:p-6 rounded-xl border border-[#E2E8F0] shadow-sm text-center hover:-translate-y-1 transition-transform">
-                <span className="text-[#F97316] text-3xl block mb-2">⭐</span>
-                <span className="block text-2xl font-extrabold text-[#0F172A]">15+</span>
-                <span className="text-xs sm:text-sm font-bold text-[#64748B]">Years of Experience</span>
-              </div>
-              <div className="bg-white p-4 sm:p-6 rounded-xl border border-[#E2E8F0] shadow-sm text-center hover:-translate-y-1 transition-transform">
-                <span className="text-[#F97316] text-3xl block mb-2">👥</span>
-                <span className="block text-2xl font-extrabold text-[#0F172A]">50K+</span>
-                <span className="text-xs sm:text-sm font-bold text-[#64748B]">Happy Clients</span>
-              </div>
-              <div className="bg-white p-4 sm:p-6 rounded-xl border border-[#E2E8F0] shadow-sm text-center hover:-translate-y-1 transition-transform">
-                <span className="text-[#F97316] text-3xl block mb-2">🌍</span>
-                <span className="block text-2xl font-extrabold text-[#0F172A]">20+</span>
-                <span className="text-xs sm:text-sm font-bold text-[#64748B]">Countries Served</span>
-              </div>
-              <div className="bg-white p-4 sm:p-6 rounded-xl border border-[#E2E8F0] shadow-sm text-center hover:-translate-y-1 transition-transform">
-                <span className="text-[#F97316] text-3xl block mb-2">🏆</span>
-                <span className="block text-2xl font-extrabold text-[#0F172A]">100+</span>
-                <span className="text-xs sm:text-sm font-bold text-[#64748B]">Awards & Honors</span>
-              </div>
+              {[
+                { icon: "⭐", num: "15+", label: "Years of Experience" },
+                { icon: "👥", num: "50K+", label: "Happy Clients" },
+                { icon: "🌍", num: "20+", label: "Countries Served" },
+                { icon: "🏆", num: "100+", label: "Awards & Honors" },
+              ].map((stat) => (
+                <div
+                  key={stat.label}
+                  className="bg-white p-4 sm:p-6 rounded-xl border border-[#E2E8F0] shadow-sm text-center hover:-translate-y-1 transition-transform"
+                >
+                  <span className="text-[#F97316] text-3xl block mb-2">{stat.icon}</span>
+                  <span className="block text-2xl font-extrabold text-[#0F172A]">{stat.num}</span>
+                  <span className="text-xs sm:text-sm font-bold text-[#64748B]">{stat.label}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Section 3 - Awards & Honors */}
       <section className="bg-white py-20 px-4 border-y border-[#E2E8F0]">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="font-playfair text-3xl font-bold text-[#0F172A] mb-4 tracking-wide">AWARDS & HONORS</h2>
             <div className="flex items-center justify-center gap-4 max-w-[150px] mx-auto">
-              <div className="h-[1px] bg-[#F97316] flex-1"></div>
-              <div className="w-2 h-2 rounded-full bg-[#F97316]"></div>
-              <div className="h-[1px] bg-[#F97316] flex-1"></div>
+              <div className="h-px bg-[#F97316] flex-1" />
+              <div className="w-2 h-2 rounded-full bg-[#F97316]" />
+              <div className="h-px bg-[#F97316] flex-1" />
             </div>
           </div>
 
@@ -146,110 +212,45 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Section 4 - Photo Gallery */}
       <section id="awards-section" className="py-20 px-4 max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="font-playfair text-3xl font-bold text-[#0F172A] mb-4 tracking-wide uppercase">Awards from Celebrities</h2>
           <div className="flex items-center justify-center gap-4 max-w-[150px] mx-auto mb-4">
-            <div className="h-[1px] bg-[#F97316] flex-1"></div>
-            <div className="w-1.5 h-1.5 rotate-45 bg-[#F97316]"></div>
-            <div className="h-[1px] bg-[#F97316] flex-1"></div>
+            <div className="h-px bg-[#F97316] flex-1" />
+            <div className="w-1.5 h-1.5 rotate-45 bg-[#F97316]" />
+            <div className="h-px bg-[#F97316] flex-1" />
           </div>
           <p className="text-sm text-[#64748B]">Click on any image to view full size</p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 transition-all duration-300">
-          {visibleImages.map((src, index) => (
-            <div
-              key={index}
-              className="rounded-xl overflow-hidden cursor-pointer hover:scale-105 transition-all duration-200 shadow-md"
-              onClick={() => setLightboxImg(src)}
-            >
-              <img
-                src={src}
-                alt={`Award photo ${index + 1}`}
-                className="w-full h-48 object-cover"
-              />
-            </div>
-          ))}
-        </div>
-
-        {awardsPhotos.length > 4 && (
-          <div className="flex justify-center mt-6">
-            <button
-              onClick={() => {
-                if (showAllAwards) {
-                  setShowAllAwards(false);
-                  document.getElementById('awards-section')?.scrollIntoView({ behavior: 'smooth' });
-                } else {
-                  setShowAllAwards(true);
-                }
-              }}
-              className="px-8 py-3 bg-[#F97316] text-white rounded-full font-medium hover:bg-[#EA6C0A] transition-all duration-200"
-            >
-              {showAllAwards ? 'Show Less' : `See More Photos (${awardsPhotos.length - 4} more)`}
-            </button>
-          </div>
-        )}
+        <AwardsPhotoCarousel images={awardsPhotos} onImageClick={setLightboxImg} />
       </section>
 
-      {/* Section 4.5 - Awards */}
       <section id="general-awards-section" className="py-20 px-4 max-w-7xl mx-auto border-t border-[#E2E8F0]">
         <div className="text-center mb-12">
           <h2 className="font-playfair text-3xl font-bold text-[#0F172A] mb-4 tracking-wide uppercase">Awards</h2>
           <div className="flex items-center justify-center gap-4 max-w-[150px] mx-auto mb-4">
-            <div className="h-[1px] bg-[#F97316] flex-1"></div>
-            <div className="w-1.5 h-1.5 rotate-45 bg-[#F97316]"></div>
-            <div className="h-[1px] bg-[#F97316] flex-1"></div>
+            <div className="h-px bg-[#F97316] flex-1" />
+            <div className="w-1.5 h-1.5 rotate-45 bg-[#F97316]" />
+            <div className="h-px bg-[#F97316] flex-1" />
           </div>
           <p className="text-sm text-[#64748B]">Click on any image to view full size</p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 transition-all duration-300">
-          {visibleImages1.map((src, index) => (
-            <div
-              key={index}
-              className="rounded-xl overflow-hidden cursor-pointer hover:scale-105 transition-all duration-200 shadow-md"
-              onClick={() => setLightboxImg(src)}
-            >
-              <img
-                src={src}
-                alt={`Award ${index + 1}`}
-                className="w-full h-48 object-cover"
-              />
-            </div>
-          ))}
-        </div>
-
-        {awards1Photos.length > 4 && (
-          <div className="flex justify-center mt-6">
-            <button
-              onClick={() => {
-                if (showAllAwards1) {
-                  setShowAllAwards1(false);
-                  document.getElementById('general-awards-section')?.scrollIntoView({ behavior: 'smooth' });
-                } else {
-                  setShowAllAwards1(true);
-                }
-              }}
-              className="px-8 py-3 bg-[#F97316] text-white rounded-full font-medium hover:bg-[#EA6C0A] transition-all duration-200"
-            >
-              {showAllAwards1 ? 'Show Less' : `See More Photos (${awards1Photos.length - 4} more)`}
-            </button>
-          </div>
-        )}
+        <AwardsPhotoCarousel images={awards1Photos} onImageClick={setLightboxImg} />
       </section>
 
-      {/* Section 5 - CTA Banner */}
       <section className="bg-[#F97316] py-16 px-4">
         <div className="max-w-4xl mx-auto text-center text-white">
           <div className="text-4xl mb-6">📅</div>
-          <h2 className="font-playfair text-3xl md:text-4xl font-bold mb-4">Consult Mukesh Ravindra Gupta for a better tomorrow.</h2>
+          <h2 className="font-playfair text-3xl md:text-4xl font-bold mb-4">
+            Consult Mukesh Ravindra Gupta for a better tomorrow.
+          </h2>
           <p className="text-white/90 text-lg mb-8 max-w-2xl mx-auto">
             Book your appointment today and take the first step towards a greater, happier and successful life.
           </p>
-          <Link 
-            href="/services" 
+          <Link
+            href="/services"
             className="inline-block px-8 py-3.5 bg-transparent border-2 border-white text-white font-bold rounded-lg hover:bg-white hover:text-[#F97316] transition-colors"
           >
             Book Appointment
@@ -257,21 +258,24 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Lightbox */}
       {lightboxImg && (
-        <div 
+        <div
           className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
           onClick={() => setLightboxImg(null)}
         >
-          <button 
+          <button
+            type="button"
             className="absolute top-6 right-6 text-white text-4xl hover:text-[#F97316] focus:outline-none"
-            onClick={(e) => { e.stopPropagation(); setLightboxImg(null); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setLightboxImg(null);
+            }}
           >
             &times;
           </button>
-          <img 
-            src={lightboxImg} 
-            alt="Full size award" 
+          <img
+            src={lightboxImg}
+            alt="Full size award"
             className="max-w-full max-h-[90vh] object-contain rounded"
             onClick={(e) => e.stopPropagation()}
           />

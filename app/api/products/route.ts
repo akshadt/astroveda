@@ -1,23 +1,72 @@
+import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Product from "@/models/Product";
 import { withAdminAuth } from "@/lib/auth";
 import { uploadImage } from "@/lib/cloudinary";
+import {
+  normalizeProductCategory,
+  parseShopCategoryFilter,
+  PRODUCT_CATEGORY_ENUM,
+} from "@/lib/productCategory";
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
     await connectDB();
-    const url = new URL(req.url);
-    const category = url.searchParams.get("category");
-    const query: any = { isActive: true };
-    if (category) query.category = category;
-    
-    const products = await Product.find(query).sort({ createdAt: -1 });
-    return NextResponse.json(products);
+
+    const category = req.nextUrl.searchParams.get("category");
+    const verbose = process.env.NODE_ENV !== "production";
+    if (verbose) {
+      console.log("[GET /api/products] CATEGORY (raw):", category);
+    }
+
+    // Match active or missing isActive (legacy docs); exclude explicit false.
+    const query: Record<string, unknown> = { isActive: { $ne: false } };
+    const slug = parseShopCategoryFilter(category);
+
+    if (category?.trim() && slug === null && category.toLowerCase().trim() !== "all") {
+      console.warn(
+        "[GET /api/products] Unknown category param (ignored; returning all active products):",
+        category,
+        "| allowed:",
+        PRODUCT_CATEGORY_ENUM,
+      );
+    }
+
+    if (slug) {
+      query.category = slug;
+    }
+
+    if (verbose) {
+      console.log("[GET /api/products] MONGO_QUERY:", JSON.stringify(query));
+    }
+
+    const products = await Product.find(query).sort({ createdAt: -1 }).lean();
+
+    if (verbose) {
+      console.log("[GET /api/products] RESULT COUNT:", products.length);
+    }
+
+    if (slug && products.length === 0) {
+      const distinct = await Product.distinct("category", { isActive: { $ne: false } });
+      console.warn(
+        "[GET /api/products] No rows for category slug:",
+        slug,
+        "| distinct categories (active):",
+        distinct,
+      );
+    }
+
+    return NextResponse.json(products, {
+      headers: { "Cache-Control": "no-store, must-revalidate" },
+    });
   } catch (error: unknown) {
-    console.error("[PRODUCTS_GET] error:", error);
+    console.error("[GET /api/products] FULL ERROR:", error);
+    const err = error as Error & { stack?: string };
+    console.error("[GET /api/products] error message:", err?.message);
+    console.error("[GET /api/products] error stack:", err?.stack);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Internal server error" },
+      { error: err?.message || "Internal server error" },
       { status: 500 },
     );
   }
@@ -32,20 +81,47 @@ export const POST = withAdminAuth(async (req) => {
 
     if (imageUrl && imageUrl.startsWith("data:image")) {
       try {
-        imageUrl = await uploadImage(imageUrl);
+        imageUrl = await uploadImage(imageUrl, "astroveda/products");
       } catch (err: unknown) {
         return NextResponse.json({ error: 'Image upload failed: ' + (err instanceof Error ? err.message : 'Unknown error') }, { status: 500 });
       }
     }
+
+    const imageUrls: string[] = [];
+    if (body.images && Array.isArray(body.images)) {
+      for (const imgBase64 of body.images) {
+        if (typeof imgBase64 !== "string") continue;
+        if (imgBase64.startsWith("data:image")) {
+          try {
+            imageUrls.push(await uploadImage(imgBase64, "astroveda/products"));
+          } catch (err: unknown) {
+            return NextResponse.json(
+              { error: "Additional image upload failed: " + (err instanceof Error ? err.message : "Unknown error") },
+              { status: 500 },
+            );
+          }
+        } else if (imgBase64.startsWith("http")) {
+          imageUrls.push(imgBase64);
+        }
+      }
+    }
+
+    const options = Array.isArray(body.options)
+      ? body.options.filter((x: unknown) => typeof x === "string").map((s: string) => s.trim()).filter(Boolean)
+      : [];
 
     const product = await Product.create({
       title: body.title,
       description: body.description,
       price: body.price,
       image: imageUrl,
+      images: imageUrls,
+      options,
       zodiac: body.zodiac,
       certification: body.certification,
-      category: body.category,
+      category: normalizeProductCategory(
+        typeof body.category === "string" ? body.category.toLowerCase().trim() : body.category,
+      ),
     });
 
     return NextResponse.json(product, { status: 201 });

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import Razorpay from "razorpay";
 import { connectDB } from "@/lib/db";
+import Order from "@/models/Order";
+import { getRazorpayKeySecret } from "@/lib/razorpaySecret";
 
 export async function POST(req: Request) {
   try {
@@ -12,6 +14,16 @@ export async function POST(req: Request) {
     if (!orderId) {
       return NextResponse.json({ error: "orderId is required" }, { status: 400 });
     }
+
+    const existingOrder = await Order.findById(orderId);
+    if (!existingOrder) {
+      console.warn("[POST /api/payment/create-order] Order not found:", orderId);
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    }
+    if (existingOrder.status === "paid") {
+      console.log("[POST /api/payment/create-order] Order already paid:", orderId);
+      return NextResponse.json({ error: "Order is already paid." }, { status: 400 });
+    }
     if (!numericAmount || numericAmount < 1) {
       return NextResponse.json(
         { error: "Invalid amount. Minimum order value is ₹1." },
@@ -19,8 +31,17 @@ export async function POST(req: Request) {
       );
     }
 
+    const orderAmount = Number(existingOrder.totalAmount);
+    if (
+      Number.isFinite(orderAmount) &&
+      Math.round(numericAmount * 100) !== Math.round(orderAmount * 100)
+    ) {
+      console.warn("[POST /api/payment/create-order] Amount mismatch order:", orderId);
+      return NextResponse.json({ error: "Amount does not match order." }, { status: 400 });
+    }
+
     const keyId = process.env.RAZORPAY_KEY_ID?.trim();
-    const keySecret = process.env.RAZORPAY_SECRET?.trim();
+    const keySecret = getRazorpayKeySecret();
     if (!keyId || !keySecret) {
       return NextResponse.json(
         { error: "Razorpay keys are not configured on the server." },

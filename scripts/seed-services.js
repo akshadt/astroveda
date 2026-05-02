@@ -35,32 +35,8 @@ const serviceSchema = new mongoose.Schema(
 
 const Service = mongoose.models.Service || mongoose.model("Service", serviceSchema);
 
-const services = [
-  {
-    title: "Basic Reading",
-    description:
-      "Get a comprehensive Basic Kundli PDF Report with Career & Finance Overview, Lucky Gemstone Suggestion. Delivered within 48 hours.",
-    price: 499,
-    duration: "48 hours delivery",
-    isActive: true,
-  },
-  {
-    title: "Standard Reading",
-    description:
-      "Get a Detailed Kundli PDF Report with 15-Min Live Consultation, Career Wealth & Love Paths analysis, Remedies & Gemstone Advice. Delivered within 24 hours.",
-    price: 999,
-    duration: "24 hours delivery",
-    isActive: true,
-  },
-  {
-    title: "Premium Reading",
-    description:
-      "Get an Extensive Kundli PDF Report with 30-Min Live Consultation, 5-Year Future Predictions, Vastu & Numerology Insights. Priority 12-Hour Delivery.",
-    price: 1999,
-    duration: "12 hours delivery",
-    isActive: true,
-  },
-];
+/** Homepage pricing uses Vastu services — run `npm run seed-vastu`. */
+const services = [];
 
 async function seedServices() {
   await mongoose.connect(MONGODB_URI, { dbName: "astrology-app" });

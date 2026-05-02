@@ -27,14 +27,14 @@ function getCloudinaryErrorMessage(error: unknown): string {
   return "Failed to upload image";
 }
 
-export async function uploadImage(fileStr: string): Promise<string> {
+export async function uploadImage(fileStr: string, folder = "astroveda"): Promise<string> {
   if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
     throw new Error("Cloudinary env vars are missing on server.");
   }
 
   try {
     const uploadResponse = await cloudinary.uploader.upload(fileStr, {
-      folder: 'astroveda',
+      folder,
     });
     return uploadResponse.secure_url;
   } catch (error: unknown) {

@@ -38,6 +38,10 @@ export const PUT = withAdminAuth(async (req, context) => {
       duration: body.duration,
     };
 
+    if (typeof body.category === "string") {
+      updateData.category = body.category.toLowerCase();
+    }
+
     if (body.image) {
       let imageUrl = body.image;
       if (imageUrl.startsWith("data:image")) {

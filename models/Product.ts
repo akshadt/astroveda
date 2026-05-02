@@ -1,4 +1,5 @@
 import { Schema, model, models } from "mongoose";
+import { PRODUCT_CATEGORY_ENUM } from "@/lib/productCategory";
 
 const productSchema = new Schema(
   {
@@ -6,8 +7,17 @@ const productSchema = new Schema(
     description: { type: String, required: true },
     price: { type: Number, required: true },
     image: { type: String, required: true },
+    images: { type: [String], default: [] },
+    options: { type: [String], default: [] },
     zodiac: { type: String, default: "" },
     certification: { type: String, default: "" },
+    category: {
+      type: String,
+      enum: [...PRODUCT_CATEGORY_ENUM],
+      lowercase: true,
+      trim: true,
+      default: "gemstones",
+    },
     isActive: { type: Boolean, default: true },
   },
   {

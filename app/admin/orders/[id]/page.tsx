@@ -31,9 +31,9 @@ export default function OrderDetailsPage() {
         }
         const data = await res.json();
         setOrder(data);
-      } catch (err: any) {
-        console.error(err);
-        setError(err.message);
+      } catch (err: unknown) {
+        console.error("[ADMIN_ORDER_DETAIL_FETCH]", err);
+        setError(err instanceof Error ? err.message : "Failed to load order");
       } finally {
         setLoading(false);
       }
@@ -79,9 +79,9 @@ export default function OrderDetailsPage() {
 
       setSuccessMessage(`Order status updated to ${newStatus}`);
       setTimeout(() => setSuccessMessage(null), 3000);
-    } catch (err: any) {
-      console.error("Status update failed:", err);
-      setError(err.message);
+    } catch (err: unknown) {
+      console.error("[ADMIN_ORDER_DETAIL_STATUS]", err);
+      setError(err instanceof Error ? err.message : "Status update failed");
       setTimeout(() => setError(null), 3000);
     }
   };

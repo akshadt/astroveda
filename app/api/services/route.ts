@@ -1,16 +1,18 @@
+import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Service from "@/models/Service";
 import { withAdminAuth } from "@/lib/auth";
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
     await connectDB();
-    const url = new URL(req.url);
-    const category = url.searchParams.get("category");
-    const query: any = { isActive: true };
-    if (category) query.category = category;
-    
+    const category = req.nextUrl.searchParams.get("category");
+    const query: Record<string, unknown> = { isActive: true };
+    if (category && category !== "all") {
+      query.category = category.toLowerCase();
+    }
+
     const services = await Service.find(query).sort({ createdAt: -1 });
     return NextResponse.json(services);
   } catch (error: unknown) {
@@ -44,7 +46,7 @@ export const POST = withAdminAuth(async (req) => {
       price: body.price,
       duration: body.duration,
       image: imageUrl,
-      category: body.category,
+      category: typeof body.category === "string" ? body.category.toLowerCase() : "astrology",
     });
 
     return NextResponse.json(service, { status: 201 });

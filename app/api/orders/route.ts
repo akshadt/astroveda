@@ -11,17 +11,71 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { userInfo, items, totalAmount, address } = body;
 
+    console.log("[POST /api/orders] received keys:", Object.keys(body || {}));
+
+    if (!userInfo || typeof userInfo !== "object") {
+      return NextResponse.json({ error: "userInfo is required" }, { status: 400 });
+    }
+    if (!String(userInfo.name || "").trim()) {
+      return NextResponse.json({ error: "Name is required" }, { status: 400 });
+    }
+    if (!String(userInfo.email || "").trim()) {
+      return NextResponse.json({ error: "Email is required" }, { status: 400 });
+    }
+    const phone = String(userInfo.phone || "").trim();
+    if (!phone) {
+      return NextResponse.json({ error: "Phone is required" }, { status: 400 });
+    }
+
+    if (!address || typeof address !== "object") {
+      return NextResponse.json({ error: "address is required" }, { status: 400 });
+    }
+    const addrPhone = String(address.phone || phone || "").trim();
+    if (!addrPhone) {
+      return NextResponse.json({ error: "Address phone is required" }, { status: 400 });
+    }
+    if (!String(address.addressLine || "").trim()) {
+      return NextResponse.json({ error: "Address line is required" }, { status: 400 });
+    }
+    if (!String(address.city || "").trim()) {
+      return NextResponse.json({ error: "City is required" }, { status: 400 });
+    }
+    if (!String(address.state || "").trim()) {
+      return NextResponse.json({ error: "State is required" }, { status: 400 });
+    }
+    if (!String(address.pincode || "").trim()) {
+      return NextResponse.json({ error: "Pincode is required" }, { status: 400 });
+    }
+
+    if (!Array.isArray(items) || items.length === 0) {
+      return NextResponse.json({ error: "At least one item is required" }, { status: 400 });
+    }
+
+    const amt = Number(totalAmount);
+    if (!Number.isFinite(amt) || amt < 1) {
+      return NextResponse.json({ error: "Invalid totalAmount" }, { status: 400 });
+    }
+
     const receipt = `receipt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     const order = await Order.create({
-      userInfo,
-      address,
+      userInfo: {
+        name: String(userInfo.name).trim(),
+        email: String(userInfo.email).trim(),
+        phone,
+      },
+      address: {
+        ...address,
+        fullName: address.fullName || userInfo.name,
+        phone: addrPhone,
+      },
       items,
-      totalAmount,
+      totalAmount: amt,
       receipt,
       status: "pending",
     });
 
+    console.log("[POST /api/orders] created orderId:", String(order._id), "amount:", amt);
     return NextResponse.json({ orderId: order._id });
   } catch (error: unknown) {
     console.error("[POST /api/orders] error:", error);

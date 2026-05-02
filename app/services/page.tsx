@@ -28,7 +28,10 @@ function ServicesContent() {
     const fetchServices = async () => {
       try {
         setLoading(true);
-        const url = currentCategory !== 'all' ? `/api/services?category=${currentCategory}` : "/api/services";
+        const url =
+          currentCategory !== "all"
+            ? `/api/services?category=${encodeURIComponent(currentCategory.toLowerCase())}`
+            : "/api/services";
         const res = await fetch(url);
         if (!res.ok) {
           throw new Error(await extractErrorMessage(res));
@@ -50,9 +53,9 @@ function ServicesContent() {
   return (
     <div className="flex flex-col min-h-screen pb-16">
       {/* Header Banner */}
-      <div className="bg-[#F97316] text-white py-20 px-4">
-        <div className="max-w-7xl mx-auto text-center">
-          <h1 className="font-playfair text-4xl md:text-5xl font-bold mb-4">Our Astrology Services</h1>
+      <div className="bg-[#F97316] text-white py-14 sm:py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto text-center min-w-0">
+          <h1 className="font-playfair text-2xl sm:text-4xl md:text-5xl font-bold mb-4 px-1">Our Astrology Services</h1>
           <p className="text-white/90 max-w-2xl mx-auto text-lg">
             Ancient wisdom tailored for the modern world. Find clarity, overcome obstacles, and discover your true potential.
           </p>
@@ -60,7 +63,7 @@ function ServicesContent() {
       </div>
 
       {/* Category Tabs */}
-      <div className="max-w-7xl mx-auto px-4 md:px-8 mt-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
         <div className="flex flex-wrap justify-center gap-2 sm:gap-3 pb-2 mb-8">
           {[
             { label: "All Services", value: "all" },
@@ -87,7 +90,7 @@ function ServicesContent() {
       </div>
 
       {/* Services Grid */}
-      <div className="max-w-7xl mx-auto px-4 md:px-8 mt-6 relative z-10 w-full">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 relative z-10 w-full min-w-0">
         {loading ? (
           <div className="flex justify-center py-16">
             <Spinner className="w-10 h-10 text-[#F97316]" />

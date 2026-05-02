@@ -20,11 +20,11 @@ export default function Navbar() {
 
   return (
     <>
-      <div className="bg-[#F97316] text-white text-center py-2 text-xs sm:text-sm font-medium px-2 sm:px-4">
-        🔥 Limited Daily Consultations Available — Only 5 slots remaining this week — Book before they're gone!
+      <div className="bg-[#F97316] text-white text-center py-2 text-[11px] sm:text-sm font-medium px-3 sm:px-6 leading-snug break-words max-w-[100vw]">
+        🔥 Limited Daily Consultations — 5 slots this week — Book soon!
       </div>
-      <nav className="sticky top-0 z-40 bg-white border-b border-[#E2E8F0] shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 md:px-8">
+      <nav className="sticky top-0 z-40 bg-white border-b border-[#E2E8F0] shadow-sm relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             
             {/* Logo */}
@@ -72,9 +72,9 @@ export default function Navbar() {
                 </Link>
                 <Link
                   href="/services"
-                  className="px-6 py-2.5 rounded-full bg-[#F97316] text-white text-sm font-medium hover:bg-[#EA6C0A] transition-all duration-200 shadow-md hover:shadow-lg"
+                  className="shrink-0 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full bg-[#F97316] text-white text-xs sm:text-sm font-medium hover:bg-[#EA6C0A] transition-all duration-200 shadow-md hover:shadow-lg whitespace-nowrap text-center max-w-[11rem] sm:max-w-none leading-tight"
                 >
-                  ✦ Get My Kundli Now
+                  ✦ Get My Kundli
                 </Link>
               </div>
             </div>
@@ -99,7 +99,7 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         {isOpen && (
-          <div className="md:hidden bg-white border-b absolute w-full shadow-xl">
+          <div className="md:hidden bg-white border-b absolute left-0 right-0 top-full w-full max-w-[100vw] shadow-xl z-50 overflow-x-hidden">
             <div className="px-4 pt-2 pb-6 space-y-2">
               {navLinks.map((link) => (
                 <Link

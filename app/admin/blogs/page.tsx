@@ -15,6 +15,7 @@ type Blog = {
   author: string;
   image?: string;
   category: string;
+  published?: boolean;
   createdAt?: string;
 };
 
@@ -37,12 +38,22 @@ export default function BlogsManagement() {
     content: "",
     author: "Mukesh Ravindra Gupta",
     image: "",
-    category: "Astrology"
+    category: "Astrology",
+    published: true,
   });
 
   const openAddModal = () => {
     setEditingId(null);
-    setFormData({ title: "", slug: "", excerpt: "", content: "", author: "Mukesh Ravindra Gupta", image: "", category: "Astrology" });
+    setFormData({
+      title: "",
+      slug: "",
+      excerpt: "",
+      content: "",
+      author: "Mukesh Ravindra Gupta",
+      image: "",
+      category: "Astrology",
+      published: true,
+    });
     setError(null);
     setSaveSuccess(false);
     setIsModalOpen(true);
@@ -57,7 +68,8 @@ export default function BlogsManagement() {
       content: blog.content,
       author: blog.author || "Mukesh Ravindra Gupta",
       image: blog.image || "",
-      category: blog.category || "Astrology"
+      category: blog.category || "Astrology",
+      published: blog.published !== false,
     });
     setError(null);
     setSaveSuccess(false);
@@ -86,7 +98,7 @@ export default function BlogsManagement() {
 
   const fetchBlogs = async () => {
     try {
-      const res = await fetch("/api/blogs", { credentials: "include" });
+      const res = await fetch("/api/blogs/admin", { credentials: "include" });
       if (!res.ok) {
         if (res.status === 401) {
           throw new Error("Session expired. Please log in again.");
@@ -188,7 +200,16 @@ export default function BlogsManagement() {
       setSaveSuccess(true);
       await fetchBlogs();
       setTimeout(() => {
-        setFormData({ title: "", slug: "", excerpt: "", content: "", author: "Mukesh Ravindra Gupta", image: "", category: "Astrology" });
+        setFormData({
+          title: "",
+          slug: "",
+          excerpt: "",
+          content: "",
+          author: "Mukesh Ravindra Gupta",
+          image: "",
+          category: "Astrology",
+          published: true,
+        });
         setIsModalOpen(false);
         setSaving(false);
       }, 1000);
@@ -306,6 +327,18 @@ export default function BlogsManagement() {
             {formData.image && formData.image.startsWith('http') && (
               <p className="text-xs text-green-600 mt-1">Current image preserved. Upload a new one to replace.</p>
             )}
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              id="blog-published"
+              type="checkbox"
+              checked={formData.published}
+              onChange={(e) => setFormData({ ...formData, published: e.target.checked })}
+              className="rounded border-[#E2E8F0] text-[#F97316] focus:ring-[#F97316]"
+            />
+            <label htmlFor="blog-published" className="text-sm font-bold text-[#0F172A]">
+              Published (visible on /blogs)
+            </label>
           </div>
           <div className="pt-4 flex justify-end gap-3 sticky bottom-0 bg-white py-2 border-t border-gray-100">
             {error && (

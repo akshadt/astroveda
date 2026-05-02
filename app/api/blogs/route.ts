@@ -12,14 +12,14 @@ export async function GET(req: Request) {
     const slug = searchParams.get("slug");
 
     if (slug) {
-      const blog = await Blog.findOne({ slug });
+      const blog = await Blog.findOne({ slug, published: { $ne: false } });
       if (!blog) {
         return NextResponse.json({ error: "Blog not found" }, { status: 404 });
       }
       return NextResponse.json(blog);
     }
 
-    const blogs = await Blog.find({}).sort({ createdAt: -1 });
+    const blogs = await Blog.find({ published: { $ne: false } }).sort({ createdAt: -1 });
     return NextResponse.json(blogs);
   } catch (error: unknown) {
     console.error("[BLOGS_GET] error:", error);
