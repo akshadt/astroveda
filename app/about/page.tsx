@@ -157,7 +157,7 @@ export default function AboutPage() {
 
           <div className="space-y-6">
             <p className="text-[#64748B] text-lg leading-relaxed">
-              With over 15 years of experience in Vedic Astrology, Mukesh Ravindra Gupta has guided thousands of people towards a better, happier and enlightened life. His accurate predictions and practical remedies have brought positive transformation in many lives across the globe.
+              With over 25 years of experience in Vedic Astrology, Mukesh Ravindra Gupta has guided thousands of people towards a better, happier and enlightened life. His accurate predictions and practical remedies have brought positive transformation in many lives across the globe.
             </p>
             <p className="text-[#64748B] text-lg leading-relaxed">
               He is an expert in Vedic Astrology, Numerology, Vastu Shastra, Gemstone Consultation and Spiritual Healing.
@@ -165,7 +165,7 @@ export default function AboutPage() {
 
             <div className="grid grid-cols-2 gap-4 sm:gap-6 mt-8">
               {[
-                { icon: "⭐", num: "15+", label: "Years of Experience" },
+                { icon: "⭐", num: "25+", label: "Years of Experience" },
                 { icon: "👥", num: "50K+", label: "Happy Clients" },
                 { icon: "🌍", num: "20+", label: "Countries Served" },
                 { icon: "🏆", num: "100+", label: "Awards & Honors" },

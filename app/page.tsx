@@ -278,10 +278,10 @@ export default function Home() {
             <span className="inline-block bg-[#FFF7ED] text-[#F97316] font-bold text-xs px-4 py-1.5 rounded-full uppercase tracking-widest border border-[#F97316]/20">
               ✦ EXPERT VEDIC ASTROLOGY
             </span>
-            <h1 className="font-playfair text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight break-words">
+            <h1 className="font-playfair text-5xl md:text-6xl lg:text-7xl font-black leading-tight break-words">
               <span className="text-[#0F172A]">TALK TO</span> <span className="text-[#F97316]">EXPERT ASTROLOGER NOW!</span>
             </h1>
-            <p className="text-lg md:text-xl text-[#0F172A] font-semibold">
+            <p className="text-xl md:text-2xl font-semibold text-[#0F172A] mt-4">
               Get Your Personalized Kundli Report + Expert Consultation from Certified Vedic Astrologer
             </p>
             <p className="text-[#64748B] text-base md:text-lg leading-relaxed max-w-lg">
@@ -303,7 +303,7 @@ export default function Home() {
 
           <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl border border-[#E2E8F0] relative max-w-md mx-auto w-full">
             <span className="absolute -top-4 -right-2 sm:-right-4 bg-white border border-[#E2E8F0] text-[#0F172A] font-bold text-xs sm:text-sm px-3 py-1.5 sm:px-4 sm:py-2 rounded-full shadow-lg z-10">
-              🏅 15+ Years of Experience
+              🏅 25+ Years of Experience
             </span>
             <div className="w-full min-h-48 sm:min-h-64 max-h-80 sm:max-h-none sm:h-64 bg-gray-100 rounded-xl mb-6 overflow-hidden">
               <img
@@ -361,10 +361,11 @@ export default function Home() {
           </p>
           <div className="relative w-full rounded-2xl overflow-hidden shadow-xl aspect-video bg-black">
             <iframe
-              className="absolute inset-0 w-full h-full"
-              src="https://www.youtube.com/embed/videoseries?list=UUomkkaar"
-              title="Omkkaar Astroworld"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              className="absolute top-0 left-0 w-full h-full"
+              src="https://www.youtube.com/embed/YiVqs3qTcRI?rel=0&modestbranding=1"
+              title="Omkkaar Astroworld — Expert Vedic Astrology"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
             />
           </div>
@@ -412,7 +413,7 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-6 sm:gap-6 mb-20 text-center">
             {[
               { num: "5,000+", label: "HAPPY CLIENTS" },
-              { num: "15+", label: "Years EXPERIENCE" },
+              { num: "25+", label: "Years EXPERIENCE" },
               { num: "4.9/5", label: "STAR RATING" },
               { num: "24-Hour", label: "DELIVERY" },
             ].map((stat, i) => (

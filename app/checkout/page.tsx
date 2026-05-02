@@ -178,6 +178,37 @@ function CheckoutContent() {
       document.body.appendChild(script);
     });
 
+  const startPolling = (orderId: string) => {
+    let attempts = 0;
+    const maxAttempts = 24; // 24 × 5s = 2 minutes
+
+    const pollInterval = setInterval(async () => {
+      attempts++;
+      try {
+        const res = await fetch(`/api/orders/${orderId}`, {
+          credentials: "include",
+          cache: "no-store",
+        });
+        if (res.ok) {
+          const order = (await res.json()) as { status?: string };
+          if (order.status === "paid") {
+            clearInterval(pollInterval);
+            window.location.href = `/payment-success?orderId=${orderId}`;
+            return;
+          }
+        }
+      } catch (err: unknown) {
+        console.error("Poll error:", err);
+      }
+
+      if (attempts >= maxAttempts) {
+        clearInterval(pollInterval);
+      }
+    }, 5000);
+
+    return pollInterval;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validate()) {
@@ -254,6 +285,8 @@ function CheckoutContent() {
           throw new Error("Razorpay SDK failed to load");
         }
 
+        let pollInterval: ReturnType<typeof setInterval> | null = null;
+
         const razorpay = new window.Razorpay({
           key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
           amount: razorpayData.amount,
@@ -263,9 +296,11 @@ function CheckoutContent() {
           order_id: razorpayData.razorpay_order_id,
           handler: async (response: Record<string, string>) => {
             try {
+              if (pollInterval) clearInterval(pollInterval);
               const verifyRes = await fetch("/api/payment/verify", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
+                credentials: "include",
                 body: JSON.stringify({
                   razorpay_order_id: response.razorpay_order_id,
                   razorpay_payment_id: response.razorpay_payment_id,
@@ -274,16 +309,40 @@ function CheckoutContent() {
                 }),
               });
 
-              if (!verifyRes.ok) {
-                throw new Error(await extractErrorMessage(verifyRes, "Verification failed"));
+              const verifyData = await parseJsonSafely(verifyRes);
+              if (verifyRes.ok && verifyData?.success) {
+                window.location.href = `/payment-success?orderId=${orderId}`;
+                return;
               }
 
-              router.push(`/payment-success?orderId=${orderId}`);
+              throw new Error(verifyData?.error || "Verification failed");
             } catch (err: unknown) {
               console.error("Payment verification failed:", err);
-              setCheckoutError("Payment failed. Please try again.");
+              setCheckoutError("Payment verification failed. Please contact support.");
               setIsSubmitting(false);
             }
+          },
+          modal: {
+            ondismiss: async () => {
+              try {
+                if (pollInterval) clearInterval(pollInterval);
+                const statusRes = await fetch(`/api/orders/${orderId}`, {
+                  credentials: "include",
+                  cache: "no-store",
+                });
+                if (statusRes.ok) {
+                  const orderData = (await statusRes.json()) as { status?: string };
+                  if (orderData.status === "paid") {
+                    window.location.href = `/payment-success?orderId=${orderId}`;
+                    return;
+                  }
+                }
+              } catch (err: unknown) {
+                console.error("Status check error:", err);
+              }
+              setIsSubmitting(false);
+              setCheckoutError("Payment was not completed. Please try again.");
+            },
           },
           prefill: {
             name: formData.name,
@@ -294,6 +353,7 @@ function CheckoutContent() {
         });
 
         razorpay.open();
+        pollInterval = startPolling(orderId);
       } catch (err: unknown) {
         console.error("handleSubmit failed at:", err instanceof Error ? err.message : err);
         setCheckoutError("Payment failed. Please try again.");
